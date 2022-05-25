@@ -8,31 +8,32 @@
 			 자료중 9가 있습니다.
 		  검색 데어터 : 3
 			 자료중 3은 없습니다.
+
+	 1. 선형 검색
+	 2. 보초법 적용
+	 3. p.113 Q2. 와 같은 형태로 출력
  */
 
 #include <iostream>
 int searchfunc(int* isearchdata);
+int sequentialsearch(int* key);
 
 using namespace std;
 
 int main()
 {
 	int isearchdata = 0;
-	if (searchfunc(&isearchdata))
-	{
-		printf("자료중 %d가 있습니다.", isearchdata);
-	}
-	else
-	{
-		printf("자료중 %d가 없습니다.", isearchdata);
-	}
+	searchfunc(&isearchdata);
+
 	return 0;
 }
 
 int searchfunc(int* isearchdata)
 {
-	int arr[8] = { 0 };
-	cout << "8개의 숫자 데이터 입력: ";
+	int n;
+	cin >> n;
+	int arr[n] = { 0 };
+	cout << n <<"개의 숫자 데이터 입력: ";
 	for (int i = 0; i < 8; i++)
 	{
 		cin >> arr[i];
@@ -43,8 +44,10 @@ int searchfunc(int* isearchdata)
 	{
 		if (*isearchdata == arr[i])
 		{
+			printf("자료중 %d가 있습니다.", *isearchdata);
 			return 1;
 		}
 	}
+	printf("자료중 %d가 없습니다.", *isearchdata);
 	return 0;
 }
