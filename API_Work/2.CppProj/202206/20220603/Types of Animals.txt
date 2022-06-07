@@ -1,0 +1,7 @@
+Pets
+Farm_Animals
+Wild_Animals
+Mammals
+Sea_Animals
+Birds
+Insects
