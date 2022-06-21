@@ -1,6 +1,9 @@
 ﻿// 20220620.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
+#define _USE_MATH_DEFINES
 
+#include <cmath>
+#include <numbers>
 #include "framework.h"
 #include "20220620.h"
 
@@ -27,6 +30,12 @@ void Textout_Test();
 void DrawLine_Test(HDC hdc);
 
 void DrawGrid(HDC hdc, POINT LeftTop, POINT RightBottom, LONG nWidth, LONG nHeight);
+void DrawCircle_Test(HDC hdc);
+void DrawCircle(HDC hdc, POINT center, double radius);
+void DrawPolygon_Test(HDC hdc);
+void DrawSunflower(HDC hdc, POINT center, double radius, int numofcircumscribedcircle);
+void DrawStar(HDC hdc, POINT center, double radius, int numofang);
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -109,7 +118,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+		0, 0, 1000, 1000, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd)
 	{
@@ -145,8 +154,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		count = 0;
 		yPos = 120;
 
-		CreateCaret(hWnd, NULL, 3, 20);
-		ShowCaret(hWnd);
+		/*CreateCaret(hWnd, NULL, 3, 20);*/
+		/*ShowCaret(hWnd);*/
 		break;
 	case WM_COMMAND:
 	{
@@ -171,12 +180,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 		/*DrawLine_Test(hdc);*/
-		POINT a, b;
+		/*POINT a, b;
 		a.x = 0;
 		a.y = 0;
 		b.x = 700;
-		b.y = 700;
-		DrawGrid(hdc, a, b, 20, 20);
+		b.y = 700;*/
+		POINT O;
+		O.x = 500;
+		O.y = 450;
+		int Radius = 200;
+		int numofang = 6;
+
+		DrawStar(hdc, O, Radius, numofang);
+
+		/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
+		//DrawCircle(hdc, O, Radius);
+		/*DrawGrid(hdc, a, b, 20, 20);
+		DrawCircle_Test(hdc);
+		{
+			HPEN hPen, oldPen;
+			hPen = CreatePen(PS_DOT, 1, RGB(255, 0, 0));
+			oldPen = (HPEN)SelectObject(hdc, hPen);
+			DrawPolygon_Test(hdc);
+			SelectObject(hdc, oldPen);
+			DeleteObject(hPen);
+		}
+
+		{
+			HBRUSH hBrush, oldBrush;
+			hBrush = CreateSolidBrush(RGB(0, 255, 0));
+			oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+			DrawPolygon_Test(hdc);
+			SelectObject(hdc, oldBrush);
+			DeleteObject(hBrush);
+		}*/
 
 		EndPaint(hWnd, &ps);
 	}
@@ -261,6 +298,8 @@ void Textout_Test()
 //}
 
 
+
+
 void DrawGrid(HDC hdc, POINT LeftTop, POINT RightBottom, LONG nWidth, LONG nHeight)
 {
 	for (int i = 0; i <= RightBottom.y/nHeight; i++) 
@@ -275,3 +314,75 @@ void DrawGrid(HDC hdc, POINT LeftTop, POINT RightBottom, LONG nWidth, LONG nHeig
 		LineTo(hdc, LeftTop.x + i * nWidth, RightBottom.y);
 	}
 }
+
+void DrawCircle_Test(HDC hdc)
+{
+	Ellipse(hdc, 300, 300, 500, 400);
+}
+
+void DrawRectangle_Test(HDC hdc)
+{
+	Rectangle(hdc, 500, 300, 700, 500);
+}
+
+void DrawPolygon_Test(HDC hdc)
+{
+	POINT point[5] = { {10, 150}, {250, 30}, {500, 150}, {350, 300}, {150, 300} };
+	Polygon(hdc, point, 5);
+}
+
+void DrawCircle(HDC hdc, POINT center, double radius)
+{
+	Ellipse(hdc, center.x - radius, center.y - radius, center.x + radius, center.y + radius);
+}
+
+void DrawSunflower(HDC hdc, POINT center, double radius, int numofcircumscribedcircle)
+{
+	DrawCircle(hdc, center, radius);
+	double radius2 = (radius * sin(M_PI / numofcircumscribedcircle) / (1 - sin(M_PI / numofcircumscribedcircle)));
+	const double radian = M_PI / numofcircumscribedcircle;
+	for (int i = 0; i < numofcircumscribedcircle; i++)
+	{
+		POINT R;
+
+		R.x = center.x + (radius + radius2) * (cos(radian * (2*i)));
+		R.y = center.y + (radius + radius2) * (sin(radian * (2*i)));
+
+		DrawCircle(hdc, R, radius2);
+	}
+}
+
+void DrawStar(HDC hdc, POINT center, double radius, int numofang)
+{
+	const double radian = 2 * M_PI / numofang;
+	POINT* R = new POINT[numofang];
+	POINT* r = new POINT[numofang];
+	POINT* C = new POINT[2 * numofang];
+	for (int i = 0; i < numofang; i++)
+	{
+		double radius2 = radius * (cos((2 * M_PI) / numofang) / cos((M_PI) / numofang));
+
+		R[i].x = center.x + radius * (cos(radian * i + (M_PI / 2)));
+		R[i].y = center.y + radius * (sin(radian * i + (M_PI / 2)));
+
+		r[i].x = center.x + radius2 * (cos(radian * ((1 / 2.0) * ((2 * i) + 1)) + (M_PI / 2)));
+		r[i].y = center.y + radius2 * (sin(radian * ((1 / 2.0) * ((2 * i) + 1)) + (M_PI / 2)));
+
+		C[2*i] = R[i];
+		C[2*i + 1] = r[i];
+	}
+	Polygon(hdc, C, 2 * numofang);
+	delete[] R;
+	delete[] r;
+	delete[] C;
+}
+/*
+Q1. 원의 중점과 반지름을 인자로 받아 원을 그리는 함수를 구현하라.
+
+Q2. 해바라기 그리기 함수를 구현하라.
+	원을 그리기 위한 기본 정보에 .. 외각에 그려질 원의 개수를 입력 받아
+	해바라기 형식으로 그려지도록 한다.
+
+Q3. 별을 그리는 함수를 구현하라.
+	별의 중점과 별과 외곽점까지의 거리를 입력 받아 별을 그리도록 한다.
+*/
