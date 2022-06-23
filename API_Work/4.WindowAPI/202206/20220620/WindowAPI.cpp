@@ -1,11 +1,11 @@
-﻿// 20220620.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// WindowAPI.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 #define _USE_MATH_DEFINES
+#define BSIZE 40
 
-#include <cmath>
-#include <numbers>
 #include "framework.h"
-#include "20220620.h"
+#include "WindowAPI.h"
+#include "WindowDraw.h"
 
 #define MAX_LOADSTRING 100
 
@@ -25,17 +25,6 @@ static int count, yPos;
 static SIZE size;
 HDC hdc;
 PAINTSTRUCT ps;
-
-void Textout_Test();
-void DrawLine_Test(HDC hdc);
-
-void DrawGrid(HDC hdc, POINT LeftTop, POINT RightBottom, LONG nWidth, LONG nHeight);
-void DrawCircle_Test(HDC hdc);
-void DrawCircle(HDC hdc, POINT center, double radius);
-void DrawPolygon_Test(HDC hdc);
-void DrawSunflower(HDC hdc, POINT center, double radius, int numofcircumscribedcircle);
-void DrawStar(HDC hdc, POINT center, double radius, int numofang);
-
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -75,8 +64,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	return (int)msg.wParam;
 }
 
-
-
 //
 //  함수: MyRegisterClass()
 //
@@ -96,7 +83,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_QUESTION));
 	wcex.hCursor = LoadCursor(nullptr, IDC_IBEAM);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MY20220620);
+	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_QUESTION));
 
@@ -118,7 +105,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		0, 0, 1000, 1000, nullptr, nullptr, hInstance, nullptr);
+		0, 0, 1000, 2000, nullptr, nullptr, hInstance, nullptr);
+
+	/*
+   HWND hWnd = CreateWindowW(szWindowClass,_T("박지후의 첫 윈도우"), WS_OVERLAPPEDWINDOW,
+	   200, 300, 600, 400, nullptr, nullptr, hInstance, nullptr);
+	   */
 
 	if (!hWnd)
 	{
@@ -142,17 +134,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // 메
 {
-
-
+	static int	x, y;
+	static BOOL Selection;
+	int			mx, my;
+	//static RECT	rectView;
+	/*static RECT rcClient;
+	static bool Point_Check = false;*/
+	//static double circle_radius = 100;
+	/*static bool Button_Down = false;
+	static int count, new_x, new_y, x_move = 40, y_move = 50;*/
+	/*static ObjectCircle circle[100];*/
 	switch (message)
 	{
 	case WM_CREATE:
-		count = 0;
-		yPos = 120;
+		x = 50, y = 50;
+		Selection = FALSE;
+
+		//GetClientRect(hWnd, &rectView);
+		/*count = 0;
+		yPos = 120;*/
 
 		/*CreateCaret(hWnd, NULL, 3, 20);*/
 		/*ShowCaret(hWnd);*/
@@ -178,6 +180,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 		PAINTSTRUCT ps;
 		hdc = BeginPaint(hWnd, &ps);
+		POINT O;
+		O.x = x + 20, O.y = 20;
+		if (Selection)
+			DrawRectangle(hdc, )
+		/*if (flag)
+			SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
+		
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 		/*DrawLine_Test(hdc);*/
 		/*POINT a, b;
@@ -185,13 +194,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		a.y = 0;
 		b.x = 700;
 		b.y = 700;*/
-		POINT O;
+
+		/*POINT O;
 		O.x = 500;
 		O.y = 450;
 		int Radius = 200;
 		int numofang = 6;
 
-		DrawStar(hdc, O, Radius, numofang);
+		DrawStar(hdc, O, Radius, numofang);*/
+
+		/*POINT A_1{ 100, 100 }, A_2{ 200, 200 }, B_1{ 200, 0 }, B_2{ 300, 100 },
+			C_1{ 300, 100 }, C_2{ 400, 200 }, D_1{ 200, 200 }, D_2{ 300, 300 };
+
+		RECT rc1{ A_1.x, A_1.y, A_2.x, A_2.y };
+		if (x != -1)
+		{
+			DrawRectangle(hdc, A_1, A_2);
+			DrawText(hdc, _T("왼쪽"), _tcslen(_T("왼쪽")), &rc1, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else
+			DrawRedRectangle(hdc, A_1, A_2);
+
+		RECT rc2{ B_1.x, B_1.y, B_2.x, B_2.y };
+		if (y != -1)
+		{
+			DrawRectangle(hdc, B_1, B_2);
+			DrawText(hdc, _T("위쪽"), _tcslen(_T("위쪽")), &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else
+			DrawRedRectangle(hdc, B_1, B_2);
+
+		RECT rc3{ C_1.x, C_1.y, C_2.x, C_2.y };
+		if (x != 1)
+		{
+			DrawRectangle(hdc, C_1, C_2);
+			DrawText(hdc, _T("오른쪽"), _tcslen(_T("오른쪽")), &rc3, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else
+			DrawRedRectangle(hdc, C_1, C_2);
+
+		RECT rc4{ D_1.x, D_1.y, D_2.x, D_2.y };
+		if (y != 1)
+		{
+			DrawRectangle(hdc, D_1, D_2);
+			DrawText(hdc, _T("아래쪽"), _tcslen(_T("아래쪽")), &rc4, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else
+			DrawRedRectangle(hdc, D_1, D_2);*/
 
 		/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
 		//DrawCircle(hdc, O, Radius);
@@ -218,33 +267,88 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		EndPaint(hWnd, &ps);
 	}
 	break;
-	case WM_DESTROY:
-		HideCaret(hWnd);
-		DestroyCaret();
-		PostQuitMessage(0);
-		break;
-	case WM_KEYDOWN:
-	{
-		int breakpoint = 999;
-	}
-	break;
 	case WM_CHAR:
 	{
-		int breakpoint = 999;
+		/*int breakpoint = 999;
 
 		if (wParam == VK_BACK && count > 0) count--;
 		else if (wParam == VK_RETURN) yPos += 20;
 		else str[count++] = wParam;
 		str[count] = NULL;
 
-		InvalidateRect(hWnd, NULL, TRUE);
+		InvalidateRect(hWnd, NULL, TRUE);*/
 	}
 	break;
 	case WM_KEYUP:
 	{
-		int breakpoint = 999;
+		/*flag = false;*/
+
+		/*switch (wParam)
+		{
+		case VK_RIGHT:
+			x = 0;
+			break;
+		case VK_LEFT:
+			x = 0;
+			break;
+		case VK_DOWN:
+			y = 0;
+			break;
+		case VK_UP:
+			y = 0;
+			break;
+		default:
+			break;
+		}
+		*/
+		/*InvalidateRect(hWnd, NULL, TRUE);
+		break;*/
 	}
-	break;
+	case WM_KEYDOWN:
+	{
+		if (wParam == VK_RIGHT)
+			SetTimer(hWnd, 1, 70, NULL);
+		/*{
+			flag = true;
+			x += 40;
+			if (x + 20 > rectView.right)
+				x = rectView.right - 40;
+		}*/
+		/*int breakpoint = 999;*/
+		/*switch (wParam)
+		{
+		case VK_RIGHT:
+			x = 1;
+			break;
+		case VK_LEFT:
+			x = -1;
+			break;
+		case VK_DOWN:
+			y = 1;
+			break;
+		case VK_UP:
+			y = -1;
+			break;
+		default:
+			break;
+		}*/
+		//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
+		break;
+	}
+	case WM_TIMER:
+		x += 40;
+		if (x + 20 > rectView.right)
+			x = rectView.right - 40;
+		InvalidateRgn(hWnd, NULL, TRUE);
+		break;
+	case WM_DESTROY:
+		/*	HideCaret(hWnd);
+			DestroyCaret();*/
+		PostQuitMessage(0);
+		break;
+	case WM_SIZE:
+		GetClientRect(hWnd, &rectView);
+		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -271,111 +375,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
-void Textout_Test()
-{
-	TextOut(hdc, 100, 100, _T("Hello World!"), _tcslen(_T("Hello World!")));
-
-	RECT rc;
-	rc.left = 200;
-	rc.top = 200;
-	rc.right = 300;
-	rc.bottom = 300;
-	DrawText(hdc, _T("Hello World!"), _tcslen(_T("Hello World!")), &rc, DT_VCENTER);
-
-	// : Key input
-	{
-		SetTextColor(hdc, RGB(255, 0, 0));
-		TextOut(hdc, 400, yPos, str, _tcslen(str));
-		GetTextExtentExPointW(hdc, str, _tcslen(str), 0, 0, 0, &size);
-		SetCaretPos(400 + size.cx, yPos);
-	}
-}
-
-//void DrawLine_Test(HDC hdc)
-//{
-//	MoveToEx(hdc, 250, 250, NULL);
-//	LineTo(hdc, 500, 500);
-//}
-
-
-
-
-void DrawGrid(HDC hdc, POINT LeftTop, POINT RightBottom, LONG nWidth, LONG nHeight)
-{
-	for (int i = 0; i <= RightBottom.y/nHeight; i++) 
-	{
-		MoveToEx(hdc, 0, LeftTop.y + i * nHeight, NULL);
-		LineTo(hdc, RightBottom.x, LeftTop.y + i * nHeight);
-	}
-
-	for (int i = 0; i <= RightBottom.x / nWidth; i++)
-	{
-		MoveToEx(hdc, LeftTop.x + i * nWidth, 0, NULL);
-		LineTo(hdc, LeftTop.x + i * nWidth, RightBottom.y);
-	}
-}
-
-void DrawCircle_Test(HDC hdc)
-{
-	Ellipse(hdc, 300, 300, 500, 400);
-}
-
-void DrawRectangle_Test(HDC hdc)
-{
-	Rectangle(hdc, 500, 300, 700, 500);
-}
-
-void DrawPolygon_Test(HDC hdc)
-{
-	POINT point[5] = { {10, 150}, {250, 30}, {500, 150}, {350, 300}, {150, 300} };
-	Polygon(hdc, point, 5);
-}
-
-void DrawCircle(HDC hdc, POINT center, double radius)
-{
-	Ellipse(hdc, center.x - radius, center.y - radius, center.x + radius, center.y + radius);
-}
-
-void DrawSunflower(HDC hdc, POINT center, double radius, int numofcircumscribedcircle)
-{
-	DrawCircle(hdc, center, radius);
-	double radius2 = (radius * sin(M_PI / numofcircumscribedcircle) / (1 - sin(M_PI / numofcircumscribedcircle)));
-	const double radian = M_PI / numofcircumscribedcircle;
-	for (int i = 0; i < numofcircumscribedcircle; i++)
-	{
-		POINT R;
-
-		R.x = center.x + (radius + radius2) * (cos(radian * (2*i)));
-		R.y = center.y + (radius + radius2) * (sin(radian * (2*i)));
-
-		DrawCircle(hdc, R, radius2);
-	}
-}
-
-void DrawStar(HDC hdc, POINT center, double radius, int numofang)
-{
-	const double radian = 2 * M_PI / numofang;
-	POINT* R = new POINT[numofang];
-	POINT* r = new POINT[numofang];
-	POINT* C = new POINT[2 * numofang];
-	for (int i = 0; i < numofang; i++)
-	{
-		double radius2 = radius * (cos((2 * M_PI) / numofang) / cos((M_PI) / numofang));
-
-		R[i].x = center.x + radius * (cos(radian * i + (M_PI / 2)));
-		R[i].y = center.y + radius * (sin(radian * i + (M_PI / 2)));
-
-		r[i].x = center.x + radius2 * (cos(radian * ((1 / 2.0) * ((2 * i) + 1)) + (M_PI / 2)));
-		r[i].y = center.y + radius2 * (sin(radian * ((1 / 2.0) * ((2 * i) + 1)) + (M_PI / 2)));
-
-		C[2*i] = R[i];
-		C[2*i + 1] = r[i];
-	}
-	Polygon(hdc, C, 2 * numofang);
-	delete[] R;
-	delete[] r;
-	delete[] C;
-}
 /*
 Q1. 원의 중점과 반지름을 인자로 받아 원을 그리는 함수를 구현하라.
 
@@ -385,4 +384,17 @@ Q2. 해바라기 그리기 함수를 구현하라.
 
 Q3. 별을 그리는 함수를 구현하라.
 	별의 중점과 별과 외곽점까지의 거리를 입력 받아 별을 그리도록 한다.
+*/
+
+/*
+Q1. 클라이언트 영역에 마우스 클릭하면
+	현재 마우스 위치에 원을 랜덤하게 생성.
+	생성된 도형은 임의의 방향으로 이동, 클라이언트 영역을 넘어서지 않게 외곽에서 반사
+
+	옵션 : 1, 2, 3 번호 키로 설정.
+
+	1번 - 다른 오브젝트와 부딪치면 서로 튕기기
+	2번 - 다른 오브젝트와 부딪치면 하나로 합체해서 커지게 하기
+	3번 - 다른 오브젝트와 부딪치면 분열해서 작아지게 하기
+
 */

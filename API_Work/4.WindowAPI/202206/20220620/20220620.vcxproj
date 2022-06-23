@@ -139,13 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="20220620.h" />
+    <ClInclude Include="WindowAPI.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="WindowDraw.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="20220620.cpp" />
+    <ClCompile Include="WindowAPI.cpp" />
+    <ClCompile Include="WindowDraw.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="20220620.rc" />
