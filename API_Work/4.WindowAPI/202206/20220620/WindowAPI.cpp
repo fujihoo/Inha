@@ -180,10 +180,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 		PAINTSTRUCT ps;
 		hdc = BeginPaint(hWnd, &ps);
-		POINT O;
-		O.x = x + 20, O.y = 20;
+		/*POINT A, B;
+		A.x = x + 20, A.y = 20;*/
+
 		if (Selection)
-			DrawRectangle(hdc, )
+			Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+		Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
 		/*if (flag)
 			SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
 		
@@ -267,6 +269,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		EndPaint(hWnd, &ps);
 	}
 	break;
+	case WM_LBUTTONDOWN:
+		mx = LOWORD(lParam);
+		my = HIWORD(lParam);
+		if (InCircle(x, y, mx, my))
+			Selection = TRUE;
+		InvalidateRgn(hWnd, NULL, TRUE);
+		break;
+	case WM_LBUTTONUP:
+		Selection = FALSE;
+		InvalidateRgn(hWnd, NULL, TRUE);
+		break;
+	case WM_MOUSEMOVE:
+		mx = LOWORD(lParam);
+		my = HIWORD(lParam);
+		if (Selection)
+		{
+			x = mx;
+			y = my;
+			InvalidateRgn(hWnd, NULL, TRUE);
+		}
+		break;
 	case WM_CHAR:
 	{
 		/*int breakpoint = 999;
@@ -306,8 +329,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	case WM_KEYDOWN:
 	{
-		if (wParam == VK_RIGHT)
-			SetTimer(hWnd, 1, 70, NULL);
+		/*if (wParam == VK_RIGHT)
+			SetTimer(hWnd, 1, 70, NULL);*/
 		/*{
 			flag = true;
 			x += 40;
@@ -333,22 +356,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			break;
 		}*/
 		//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
-		break;
+		/*break;*/
 	}
-	case WM_TIMER:
+	/*case WM_TIMER:
 		x += 40;
 		if (x + 20 > rectView.right)
 			x = rectView.right - 40;
 		InvalidateRgn(hWnd, NULL, TRUE);
-		break;
+		break;*/
 	case WM_DESTROY:
 		/*	HideCaret(hWnd);
 			DestroyCaret();*/
 		PostQuitMessage(0);
 		break;
-	case WM_SIZE:
+	/*case WM_SIZE:
 		GetClientRect(hWnd, &rectView);
-		break;
+		break;*/
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
