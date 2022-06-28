@@ -32,7 +32,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowAPI.cpp">
+    <ClCompile Include="winmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="WindowDraw.cpp">

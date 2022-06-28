@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "WindowAPI.h"
 #include "WindowDraw.h"
+#include <commdlg.h>
 
 #define MAX_LOADSTRING 100
 
@@ -20,9 +21,13 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+VOID CALLBACK TimerProc(HWND hWnd, UINT idEvent, DWORD dwTime);
+
+static TCHAR sTime[128];
 static TCHAR str[256];
 static int count, yPos;
 static SIZE size;
+static WPARAM selectedMenu;
 HDC hdc;
 PAINTSTRUCT ps;
 
@@ -83,7 +88,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_QUESTION));
 	wcex.hCursor = LoadCursor(nullptr, IDC_IBEAM);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;
+	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MY20220620);
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_QUESTION));
 
@@ -136,8 +141,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // 메
 {
+	static RECT screenRect;
+	/*static Game maingame;*/
+	OPENFILENAME OFN;
+	TCHAR lpstrFile[100] = _T("");
+	TCHAR filter[] = _T("EVery File(*.*) \0*.*\0")
+		_T("Text File\0*.txt;*.doc\0");
 	static int	x, y;
 	static BOOL Selection;
+	static HMENU hMenu, hSubMenu;
 	int			mx, my;
 	//static RECT	rectView;
 	/*static RECT rcClient;
@@ -149,6 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	switch (message)
 	{
 	case WM_CREATE:
+	{
 		x = 50, y = 50;
 		Selection = FALSE;
 
@@ -158,6 +171,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 		/*CreateCaret(hWnd, NULL, 3, 20);*/
 		/*ShowCaret(hWnd);*/
+		hMenu = GetMenu(hWnd);
+		hSubMenu = GetSubMenu(hMenu, 2);
+		EnableMenuItem(hSubMenu, ID_DrawCircle, MF_ENABLED);
+		EnableMenuItem(hSubMenu, ID_DrawRectangle, MF_ENABLED);
+	}
 		break;
 	case WM_COMMAND:
 	{
@@ -165,12 +183,71 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		// 메뉴 선택을 구문 분석합니다:
 		switch (wmId)
 		{
+		case ID_FILEOPEN :
+		{
+			TCHAR str[100], lpstrFile[100] = _T(" ");
+			TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
+
+			OPENFILENAME ofn;
+			memset(&ofn, 0, sizeof(OPENFILENAME));
+			ofn.lStructSize = sizeof(OPENFILENAME);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFilter = filter;
+			ofn.lpstrFile = lpstrFile;
+			ofn.nMaxFile = 100;
+			ofn.lpstrInitialDir = _T(".");
+			if (GetOpenFileName(&ofn) != 0)
+			{
+				_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
+				MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
+			}
+			break;
+		}
+		case ID_FILESAVE:
+		{
+			TCHAR str[100], lpstrFile[100] = _T(" ");
+			TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
+
+			OPENFILENAME ofn;
+			memset(&ofn, 0, sizeof(OPENFILENAME));
+			ofn.lStructSize = sizeof(OPENFILENAME);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFilter = filter;
+			ofn.lpstrFile = lpstrFile;
+			ofn.nMaxFile = 100;
+			ofn.lpstrInitialDir = _T(".");
+			if (GetSaveFileName(&ofn) != 0)
+			{
+				_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
+				MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
+			}
+			break;
+		}
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
+		case ID_DrawCircle:
+		case ID_DrawRectangle:
+		{
+			selectedMenu = wmId;
+			int answer = MessageBox(hWnd, _T("선택한 메뉴로 실행하겠습니까?"), _T("메뉴선택확인"), MB_OKCANCEL);
+
+			if (answer == IDOK)
+			{
+				InvalidateRect(hWnd, NULL, TRUE);
+			}
+			else if (answer == IDCANCEL)
+			{
+
+			}
+			break;
+		}
+	
 		case IDM_EXIT:
+		{
 			DestroyWindow(hWnd);
 			break;
+		}
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -189,6 +266,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		/*if (flag)
 			SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
 		
+	
+	/*	case ID_DrawCircle:
+
+		case ID_DrawRectangle:*/
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 		/*DrawLine_Test(hdc);*/
 		/*POINT a, b;
@@ -270,16 +351,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	break;
 	case WM_LBUTTONDOWN:
-		mx = LOWORD(lParam);
-		my = HIWORD(lParam);
-		if (InCircle(x, y, mx, my))
-			Selection = TRUE;
+	{
+		POINT temp;
+		temp.x = LOWORD(lParam);
+		temp.y = HIWORD(lParam);
+
+	
+		/*if (InCircle(x, y, mx, my))
+			Selection = TRUE;*/
+
 		InvalidateRgn(hWnd, NULL, TRUE);
 		break;
+	}
 	case WM_LBUTTONUP:
+	{
 		Selection = FALSE;
 		InvalidateRgn(hWnd, NULL, TRUE);
 		break;
+	}
 	case WM_MOUSEMOVE:
 		mx = LOWORD(lParam);
 		my = HIWORD(lParam);
@@ -421,3 +510,11 @@ Q1. 클라이언트 영역에 마우스 클릭하면
 	3번 - 다른 오브젝트와 부딪치면 분열해서 작아지게 하기
 
 */
+
+VOID CALLBACK TimerProc(HWND hWnd, UINT idEvent, DWORD dwTime)
+{
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	wsprintf(sTime, _T("지금 시간은 %d:%d:%d 입니다", st.wHour, st.wMinute, st.wSecond));
+	InvalidateRgn(hWnd, NULL, TRUE);
+}

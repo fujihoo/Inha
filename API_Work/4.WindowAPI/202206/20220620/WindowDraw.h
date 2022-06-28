@@ -1,5 +1,4 @@
 #pragma once
-#define BSIZE 40
 
 #include <iostream>
 #include <cmath>
@@ -19,6 +18,7 @@ void DrawSunflower(HDC hdc, POINT center, double radius, int numofcircumscribedc
 void DrawStar(HDC hdc, POINT center, double radius, int numofang);
 void DrawRectangle(HDC hdc, POINT LeftTop, POINT RightBottom);
 void DrawRedRectangle(HDC hdc, POINT A_1, POINT A_2);
+void OutFromFile(TCHAR filename[], HWND hWnd);
 
 double LengthPts(int x1, int y1, int x2, int y2);
 
