@@ -1,0 +1,106 @@
+/*
+void CreateBitmap()
+{
+	// : for bitblt
+	hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/수지.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hBackImage, sizeof(BITMAP), &bitBack);
+
+	// : for trans .. blt
+	hSigongImage = (HBITMAP)LoadImage(NULL, TEXT("images/sigong.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hSigongImage, sizeof(BITMAP), &bitSigong);
+
+	// : for ani .. blt
+	hAniImage = (HBITMAP)LoadImage(NULL, TEXT("images/zero_run.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hAniImage, sizeof(BITMAP), &bitAni);
+
+}
+
+
+void DrawBitmapDoubleBuffering(HWND hWnd, HDC hdc)
+{
+	HDC hMemDC;
+	HBITMAP hOldBitmap;
+	int bx, by;
+
+
+	// >> :
+	HDC hMemDC2;
+	HBITMAP hOldBitmap2;
+	// << :
+	hMemDC = CreateCompatibleDC(hdc);
+	// >> :
+	if (hDoubleBufferingImage == NULL)
+		hDoubleBufferingImage = CreateCompatibleBitmap(hdc, screenRect.right, screenRect.bottom);
+	hOldBitmap = (HBITMAP)SelectObject(hMemDC, hDoubleBufferingImage);
+	// << :
+	// : for background
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hBackImage);
+		bx = bitBack.bmWidth;
+		by = bitBack.bmHeight;
+
+		BitBlt(hMemDC, 0, 0, bx, by, hMemDC2, 0, 0, SRCCOPY);
+		StretchBlt(hMemDC, 900, 0, 200, 200, hMemDC2, 0, 0, bx, by, SRCCOPY);
+
+		SelectObject(hMemDC2, hOldBitmap2);
+		DeleteDC(hMemDC2);
+	}
+	// : for trans...
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hSigongImage);
+		bx = bitSigong.bmWidth;
+		by = bitSigong.bmHeight;
+
+		TransparentBlt(hMemDC, 200, 200, bx, by, hMemDC2, 0, 0, bx, by, RGB(255, 0, 255));
+
+		SelectObject(hMemDC2, hOldBitmap);
+		DeleteDC(hMemDC2);
+	}
+		// : for ani
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap = (HBITMAP)SelectObject(hMemDC2, hAniImage);
+		bx = bitAni.bmWidth / 16;
+		by = bitAni.bmHeight / 2;
+
+		int xStart = curFrame * bx;
+		int yStart = 0;
+
+		TransparentBlt(hMemDC, 200, 400, bx, by, hMemDC2, xStart, yStart, bx, by, RGB(255, 0, 255));
+
+		SelectObject(hMemDC2, hOldBitmap);
+		DeleteDC(hMemDC2);
+	}
+
+	BitBlt(hdc, 0, 0, screenRect.right, screenRect.bottom, hMemDC, 0, 0, SRCCOPY);
+
+	SelectObject(hMemDC, hOldBitmap);
+	DeleteDC(hMemDC);
+
+	
+
+}
+void DeleteBitmpa()
+{
+	DeleteObject(hBackImage);
+	DeleteObject(hSigongImage);
+	DeleteObject(hAniImage);
+}
+
+void UpdateFrame(HWND hWnd)
+{
+	if (++curFrame > Run_Frame_Max)
+		curFrame = Run_Frame_Min;
+}
+
+VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	wsprintf(sTime, _T("지금 시간은 %d:%d:%d 입니다", st.wHour, st.wMinute, st.wSecond));
+	UpdateFrame(hWnd);
+	InvalidateRgn(hWnd, NULL, FALSE);
+}
+*/

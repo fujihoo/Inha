@@ -8,6 +8,8 @@
 #include "WindowDraw.h"
 #include <commdlg.h>
 
+#pragma comment(lib, "msimg32.lib")
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -21,7 +23,37 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-VOID CALLBACK TimerProc(HWND hWnd, UINT idEvent, DWORD dwTime);
+// >> : bitmap
+HBITMAP hBackImage;
+BITMAP bitBack;
+
+HBITMAP hSigongImage;
+BITMAP bitSigong;
+
+HBITMAP hAniImage;
+BITMAP bitAni;
+const int Sprite_Size_X = 57;
+const int SPrite_Size_Y = 52;
+
+int Run_Frame_Max = 0;
+int Run_Frame_Min = 0;
+int curFrame = Run_Frame_Min;
+
+HBITMAP hDoubleBufferingImage;
+HBITMAP HTransparentImage;
+BITMAP bitTransparent;
+
+//void DrawBitmapDoubleBuffering(HWND hWnd, HDC hdc);
+void DrawBitmapDoubleBuffering(HDC hdc);
+void UpdateFrame(HWND hWnd);
+void CreateBitmap();
+void DrawBitmap(HDC hdc);
+//void DrawBitmap(HWND hWnd, HDC hdc);
+void DeleteBitmap();
+//void DeleteBitmpa();
+// << :
+
+VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 static TCHAR sTime[128];
 static TCHAR str[256];
@@ -138,10 +170,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+static RECT screenRect;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // 메
 {
-	static RECT screenRect;
 	/*static Game maingame;*/
 	OPENFILENAME OFN;
 	TCHAR lpstrFile[100] = _T("");
@@ -165,9 +197,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		x = 50, y = 50;
 		Selection = FALSE;
 
+		GetClientRect(hWnd, &screenRect);
 		//GetClientRect(hWnd, &rectView);
 		/*count = 0;
 		yPos = 120;*/
+		CreateBitmap();
+
+		SetTimer(hWnd, 3, 100, TimerProc);
+
 
 		/*CreateCaret(hWnd, NULL, 3, 20);*/
 		/*ShowCaret(hWnd);*/
@@ -176,6 +213,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		EnableMenuItem(hSubMenu, ID_DrawCircle, MF_ENABLED);
 		EnableMenuItem(hSubMenu, ID_DrawRectangle, MF_ENABLED);
 	}
+	break;
+	case WM_TIMER:
 		break;
 	case WM_COMMAND:
 	{
@@ -183,7 +222,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		// 메뉴 선택을 구문 분석합니다:
 		switch (wmId)
 		{
-		case ID_FILEOPEN :
+		case ID_FILEOPEN:
 		{
 			TCHAR str[100], lpstrFile[100] = _T(" ");
 			TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
@@ -234,7 +273,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 			if (answer == IDOK)
 			{
-				InvalidateRect(hWnd, NULL, TRUE);
+				//InvalidateRect(hWnd, NULL, TRUE);
 			}
 			else if (answer == IDCANCEL)
 			{
@@ -242,7 +281,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			}
 			break;
 		}
-	
+
 		case IDM_EXIT:
 		{
 			DestroyWindow(hWnd);
@@ -255,99 +294,107 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	break;
 	case WM_PAINT:
 	{
-		PAINTSTRUCT ps;
+		//PAINTSTRUCT ps;
 		hdc = BeginPaint(hWnd, &ps);
+
+		//DrawBitmapDoubleBuffering(hWnd, hdc);
+		DrawBitmapDoubleBuffering(hdc);
 		/*POINT A, B;
 		A.x = x + 20, A.y = 20;*/
 
-		if (Selection)
-			Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
-		Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+		//if (Selection)
+		//	Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+		//Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
 		/*if (flag)
 			SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
-		
-	
-	/*	case ID_DrawCircle:
 
-		case ID_DrawRectangle:*/
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-		/*DrawLine_Test(hdc);*/
-		/*POINT a, b;
-		a.x = 0;
-		a.y = 0;
-		b.x = 700;
-		b.y = 700;*/
 
-		/*POINT O;
-		O.x = 500;
-		O.y = 450;
-		int Radius = 200;
-		int numofang = 6;
+			/*	case ID_DrawCircle:
 
-		DrawStar(hdc, O, Radius, numofang);*/
+				case ID_DrawRectangle:*/
+				// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+				/*DrawLine_Test(hdc);*/
+				/*POINT a, b;
+				a.x = 0;
+				a.y = 0;
+				b.x = 700;
+				b.y = 700;*/
 
-		/*POINT A_1{ 100, 100 }, A_2{ 200, 200 }, B_1{ 200, 0 }, B_2{ 300, 100 },
-			C_1{ 300, 100 }, C_2{ 400, 200 }, D_1{ 200, 200 }, D_2{ 300, 300 };
+				/*POINT O;
+				O.x = 500;
+				O.y = 450;
+				int Radius = 200;
+				int numofang = 6;
 
-		RECT rc1{ A_1.x, A_1.y, A_2.x, A_2.y };
-		if (x != -1)
-		{
-			DrawRectangle(hdc, A_1, A_2);
-			DrawText(hdc, _T("왼쪽"), _tcslen(_T("왼쪽")), &rc1, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		}
-		else
-			DrawRedRectangle(hdc, A_1, A_2);
+				DrawStar(hdc, O, Radius, numofang);*/
 
-		RECT rc2{ B_1.x, B_1.y, B_2.x, B_2.y };
-		if (y != -1)
-		{
-			DrawRectangle(hdc, B_1, B_2);
-			DrawText(hdc, _T("위쪽"), _tcslen(_T("위쪽")), &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		}
-		else
-			DrawRedRectangle(hdc, B_1, B_2);
+				/*POINT A_1{ 100, 100 }, A_2{ 200, 200 }, B_1{ 200, 0 }, B_2{ 300, 100 },
+					C_1{ 300, 100 }, C_2{ 400, 200 }, D_1{ 200, 200 }, D_2{ 300, 300 };
 
-		RECT rc3{ C_1.x, C_1.y, C_2.x, C_2.y };
-		if (x != 1)
-		{
-			DrawRectangle(hdc, C_1, C_2);
-			DrawText(hdc, _T("오른쪽"), _tcslen(_T("오른쪽")), &rc3, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		}
-		else
-			DrawRedRectangle(hdc, C_1, C_2);
+				RECT rc1{ A_1.x, A_1.y, A_2.x, A_2.y };
+				if (x != -1)
+				{
+					DrawRectangle(hdc, A_1, A_2);
+					DrawText(hdc, _T("왼쪽"), _tcslen(_T("왼쪽")), &rc1, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				}
+				else
+					DrawRedRectangle(hdc, A_1, A_2);
 
-		RECT rc4{ D_1.x, D_1.y, D_2.x, D_2.y };
-		if (y != 1)
-		{
-			DrawRectangle(hdc, D_1, D_2);
-			DrawText(hdc, _T("아래쪽"), _tcslen(_T("아래쪽")), &rc4, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-		}
-		else
-			DrawRedRectangle(hdc, D_1, D_2);*/
+				RECT rc2{ B_1.x, B_1.y, B_2.x, B_2.y };
+				if (y != -1)
+				{
+					DrawRectangle(hdc, B_1, B_2);
+					DrawText(hdc, _T("위쪽"), _tcslen(_T("위쪽")), &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				}
+				else
+					DrawRedRectangle(hdc, B_1, B_2);
 
-		/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
-		//DrawCircle(hdc, O, Radius);
-		/*DrawGrid(hdc, a, b, 20, 20);
-		DrawCircle_Test(hdc);
-		{
-			HPEN hPen, oldPen;
-			hPen = CreatePen(PS_DOT, 1, RGB(255, 0, 0));
-			oldPen = (HPEN)SelectObject(hdc, hPen);
-			DrawPolygon_Test(hdc);
-			SelectObject(hdc, oldPen);
-			DeleteObject(hPen);
-		}
+				RECT rc3{ C_1.x, C_1.y, C_2.x, C_2.y };
+				if (x != 1)
+				{
+					DrawRectangle(hdc, C_1, C_2);
+					DrawText(hdc, _T("오른쪽"), _tcslen(_T("오른쪽")), &rc3, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				}
+				else
+					DrawRedRectangle(hdc, C_1, C_2);
 
-		{
-			HBRUSH hBrush, oldBrush;
-			hBrush = CreateSolidBrush(RGB(0, 255, 0));
-			oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-			DrawPolygon_Test(hdc);
-			SelectObject(hdc, oldBrush);
-			DeleteObject(hBrush);
-		}*/
+				RECT rc4{ D_1.x, D_1.y, D_2.x, D_2.y };
+				if (y != 1)
+				{
+					DrawRectangle(hdc, D_1, D_2);
+					DrawText(hdc, _T("아래쪽"), _tcslen(_T("아래쪽")), &rc4, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				}
+				else
+					DrawRedRectangle(hdc, D_1, D_2);*/
+
+					/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
+					//DrawCircle(hdc, O, Radius);
+					/*DrawGrid(hdc, a, b, 20, 20);
+					DrawCircle_Test(hdc);
+					{
+						HPEN hPen, oldPen;
+						hPen = CreatePen(PS_DOT, 1, RGB(255, 0, 0));
+						oldPen = (HPEN)SelectObject(hdc, hPen);
+						DrawPolygon_Test(hdc);
+						SelectObject(hdc, oldPen);
+						DeleteObject(hPen);
+					}
+
+					{
+						HBRUSH hBrush, oldBrush;
+						hBrush = CreateSolidBrush(RGB(0, 255, 0));
+						oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+						DrawPolygon_Test(hdc);
+						SelectObject(hdc, oldBrush);
+						DeleteObject(hBrush);
+					}*/
 
 		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_SIZE:
+	{
+		GetClientRect(hWnd, &screenRect);
 	}
 	break;
 	case WM_LBUTTONDOWN:
@@ -356,17 +403,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		temp.x = LOWORD(lParam);
 		temp.y = HIWORD(lParam);
 
-	
+
 		/*if (InCircle(x, y, mx, my))
 			Selection = TRUE;*/
 
-		InvalidateRgn(hWnd, NULL, TRUE);
+			//InvalidateRgn(hWnd, NULL, TRUE);
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
 		Selection = FALSE;
-		InvalidateRgn(hWnd, NULL, TRUE);
+		//InvalidateRgn(hWnd, NULL, TRUE);
 		break;
 	}
 	case WM_MOUSEMOVE:
@@ -376,7 +423,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		{
 			x = mx;
 			y = my;
-			InvalidateRgn(hWnd, NULL, TRUE);
+			//InvalidateRgn(hWnd, NULL, TRUE);
 		}
 		break;
 	case WM_CHAR:
@@ -420,32 +467,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 		/*if (wParam == VK_RIGHT)
 			SetTimer(hWnd, 1, 70, NULL);*/
-		/*{
-			flag = true;
-			x += 40;
-			if (x + 20 > rectView.right)
-				x = rectView.right - 40;
-		}*/
-		/*int breakpoint = 999;*/
-		/*switch (wParam)
-		{
-		case VK_RIGHT:
-			x = 1;
-			break;
-		case VK_LEFT:
-			x = -1;
-			break;
-		case VK_DOWN:
-			y = 1;
-			break;
-		case VK_UP:
-			y = -1;
-			break;
-		default:
-			break;
-		}*/
-		//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
-		/*break;*/
+			/*{
+				flag = true;
+				x += 40;
+				if (x + 20 > rectView.right)
+					x = rectView.right - 40;
+			}*/
+			/*int breakpoint = 999;*/
+			/*switch (wParam)
+			{
+			case VK_RIGHT:
+				x = 1;
+				break;
+			case VK_LEFT:
+				x = -1;
+				break;
+			case VK_DOWN:
+				y = 1;
+				break;
+			case VK_UP:
+				y = -1;
+				break;
+			default:
+				break;
+			}*/
+			//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
+			/*break;*/
 	}
 	/*case WM_TIMER:
 		x += 40;
@@ -456,11 +503,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	case WM_DESTROY:
 		/*	HideCaret(hWnd);
 			DestroyCaret();*/
+			//DeleteBitmpa();
+		DeleteBitmap();
 		PostQuitMessage(0);
 		break;
-	/*case WM_SIZE:
-		GetClientRect(hWnd, &rectView);
-		break;*/
+		/*case WM_SIZE:
+			GetClientRect(hWnd, &rectView);
+			break;*/
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -511,10 +560,111 @@ Q1. 클라이언트 영역에 마우스 클릭하면
 
 */
 
-VOID CALLBACK TimerProc(HWND hWnd, UINT idEvent, DWORD dwTime)
+void CreateBitmap()
 {
-	SYSTEMTIME st;
+	// : for bitblt
+	hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/수지.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hBackImage, sizeof(BITMAP), &bitBack);
+
+	// : for trans .. blt
+	hSigongImage = (HBITMAP)LoadImage(NULL, TEXT("images/sigong.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hSigongImage, sizeof(BITMAP), &bitSigong);
+
+	// : for ani .. blt
+	hAniImage = (HBITMAP)LoadImage(NULL, TEXT("images/zero_run.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hAniImage, sizeof(BITMAP), &bitAni);
+	Run_Frame_Max = bitAni.bmWidth / Sprite_Size_X - 1;
+	Run_Frame_Min = 2;
+	curFrame = Run_Frame_Min;
+}
+
+
+void DrawBitmapDoubleBuffering(HDC hdc)
+{
+	HDC hMemDC;
+	HBITMAP hOldBitmap;
+	int bx, by;
+
+
+	// >> :
+	HDC hMemDC2;
+	HBITMAP hOldBitmap2;
+	// << :
+	hMemDC = CreateCompatibleDC(hdc);
+	// >> :
+	if (hDoubleBufferingImage == NULL)
+		hDoubleBufferingImage = CreateCompatibleBitmap(hdc, screenRect.right, screenRect.bottom);
+	hOldBitmap = (HBITMAP)SelectObject(hMemDC, hDoubleBufferingImage);
+	// << :
+	// : for background
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hBackImage);
+		bx = bitBack.bmWidth;
+		by = bitBack.bmHeight;
+
+		BitBlt(hMemDC, 0, 0, bx, by, hMemDC2, 0, 0, SRCCOPY);
+		//StretchBlt(hMemDC, 900, 0, 200, 200, hMemDC2, 0, 0, bx, by, SRCCOPY);
+
+		SelectObject(hMemDC2, hOldBitmap2);
+		DeleteDC(hMemDC2);
+	}
+	// : for trans...
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hSigongImage);
+		bx = bitSigong.bmWidth;
+		by = bitSigong.bmHeight;
+
+		TransparentBlt(hMemDC, 200, 200, bx, by, hMemDC2, 0, 0, bx, by, RGB(255, 0, 255));
+
+		SelectObject(hMemDC2, hOldBitmap);
+		DeleteDC(hMemDC2);
+	}
+		// : for ani
+	{
+		hMemDC2 = CreateCompatibleDC(hMemDC);
+		hOldBitmap = (HBITMAP)SelectObject(hMemDC2, hAniImage);
+		bx = bitAni.bmWidth / 16;
+		by = bitAni.bmHeight / 2;
+
+		int xStart = curFrame * bx;
+		int yStart = 0;
+
+		TransparentBlt(hMemDC, 200, 400, bx, by, hMemDC2, xStart, yStart, bx, by, RGB(255, 0, 255));
+
+		SelectObject(hMemDC2, hOldBitmap);
+		DeleteDC(hMemDC2);
+	}
+
+	BitBlt(hdc, 0, 0, screenRect.right, screenRect.bottom, hMemDC, 0, 0, SRCCOPY);
+
+	SelectObject(hMemDC, hOldBitmap);
+	DeleteDC(hMemDC);
+}
+
+void DeleteBitmap()
+{
+	DeleteObject(hBackImage);
+	DeleteObject(hSigongImage);
+	DeleteObject(hAniImage);
+}
+
+void UpdateFrame(HWND hWnd)
+{
+	if (++curFrame > Run_Frame_Max)
+		curFrame = Run_Frame_Min;
+}
+
+VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	/*SYSTEMTIME st;
 	GetLocalTime(&st);
-	wsprintf(sTime, _T("지금 시간은 %d:%d:%d 입니다", st.wHour, st.wMinute, st.wSecond));
-	InvalidateRgn(hWnd, NULL, TRUE);
+	wsprintf(sTime, _T("지금 시간은 %d:%d:%d 입니다", st.wHour, st.wMinute, st.wSecond));*/
+	/*double bx = bitAni.bmWidth / 16;
+	double by = bitAni.bmHeight / 2;
+	RECT temp1{ 400, 600 - by, 400 + bx, 600 + by };
+	RECT* temp = &temp1;*/
+	UpdateFrame(hWnd);
+	InvalidateRgn(hWnd, NULL, FALSE);
 }

@@ -124,13 +124,13 @@ double LengthPts(int x1, int y1, int x2, int y2)
 	return(sqrt((float)((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))));
 }
 
-BOOL InCircle(int x, int y, int mx, int my)
-{
-	if (LengthPts(x, y, mx, my) < BSIZE)
-		return TRUE;
-	else
-		return FALSE;
-}
+//BOOL InCircle(int x, int y, int mx, int my)
+//{
+//	if (LengthPts(x, y, mx, my) < BSIZE)
+//		return TRUE;
+//	else
+//		return FALSE;
+//}
 
 void OutFromFile(TCHAR filename[], HWND hWnd)
 {

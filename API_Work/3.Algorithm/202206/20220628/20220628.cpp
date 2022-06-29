@@ -2,14 +2,16 @@
 using namespace std;
 
 int bf_match(const char Origin[], const char Keyword[]);
+int KMP_match(const char Origin[], const char Keyword[]);
 
 int main()
 {
-	char Origin[256];
-	char Keyword[256];
+	char Origin[5000] = { 0 };
+	char Keyword[5000] = { 0 };
 
 	cin >> Origin >> Keyword;
 	bf_match(Origin, Keyword);
+	KMP_match(Origin, Keyword);
 	
 	return 0;
 }
@@ -67,5 +69,17 @@ int bf_match(const char Origin[], const char Keyword[])
 		}
 		cout << "\n";
 		match_count = 0;
+	}
+}
+
+int KMP_match(const char Origin[], const char Keyword[])
+{
+	char Table[256] = "ABABAABA";
+	while (1)
+	{
+		if (Table[0] = Table[1])
+		{
+
+		}
 	}
 }
