@@ -53,7 +53,11 @@ void DeleteBitmap();
 //void DeleteBitmpa();
 // << :
 
+VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+TCHAR sKeyState[128];
+void Update();
+POINT ptAni = { 200, 400 };
 
 static TCHAR sTime[128];
 static TCHAR str[256];
@@ -62,6 +66,10 @@ static SIZE size;
 static WPARAM selectedMenu;
 HDC hdc;
 PAINTSTRUCT ps;
+
+// >> : dialog box
+BOOL CALLBACK Dlg_Proc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -89,12 +97,32 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	MSG msg;
 
 	// 기본 메시지 루프입니다:
-	while (GetMessage(&msg, nullptr, 0, 0))
+	/*while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+	}*/
+
+	while (true)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+			else
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+		else
+		{
+			Update();
 		}
 	}
 
@@ -203,6 +231,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		yPos = 120;*/
 		CreateBitmap();
 
+		SetTimer(hWnd, 1, 200, KeyStateProc);
 		SetTimer(hWnd, 3, 100, TimerProc);
 
 
@@ -399,9 +428,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	break;
 	case WM_LBUTTONDOWN:
 	{
-		POINT temp;
-		temp.x = LOWORD(lParam);
-		temp.y = HIWORD(lParam);
+		POINT StartPos;
+		StartPos.x = LOWORD(lParam);
+		StartPos.y = HIWORD(lParam);
+		DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, Dlg_Proc);
 
 
 		/*if (InCircle(x, y, mx, my))
@@ -493,6 +523,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			}*/
 			//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
 			/*break;*/
+		break;
 	}
 	/*case WM_TIMER:
 		x += 40;
@@ -621,7 +652,7 @@ void DrawBitmapDoubleBuffering(HDC hdc)
 		SelectObject(hMemDC2, hOldBitmap);
 		DeleteDC(hMemDC2);
 	}
-		// : for ani
+	// : for ani
 	{
 		hMemDC2 = CreateCompatibleDC(hMemDC);
 		hOldBitmap = (HBITMAP)SelectObject(hMemDC2, hAniImage);
@@ -631,7 +662,11 @@ void DrawBitmapDoubleBuffering(HDC hdc)
 		int xStart = curFrame * bx;
 		int yStart = 0;
 
-		TransparentBlt(hMemDC, 200, 400, bx, by, hMemDC2, xStart, yStart, bx, by, RGB(255, 0, 255));
+		TransparentBlt(hMemDC, ptAni.x, ptAni.y, bx, by, hMemDC2, xStart, yStart, bx, by, RGB(255, 0, 255));
+
+		xStart = Run_Frame_Max * bx - xStart;
+		yStart = by;
+		TransparentBlt(hMemDC, ptAni.x, ptAni.y + 50, bx, by, hMemDC2, xStart, yStart, bx, by, RGB(255, 0, 255));
 
 		SelectObject(hMemDC2, hOldBitmap);
 		DeleteDC(hMemDC2);
@@ -656,6 +691,23 @@ void UpdateFrame(HWND hWnd)
 		curFrame = Run_Frame_Min;
 }
 
+VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	if (GetKeyState('A' & 0x8000))
+	{
+		wsprintf(sKeyState, TEXT("%s"), _T("A-Key pressed"));
+	}
+	else if (GetKeyState('D' & 0x8000))
+	{
+		wsprintf(sKeyState, TEXT("%s"), _T("D-Key pressed"));
+	}
+	else
+	{
+		wsprintf(sKeyState, TEXT(" "));
+	}
+	InvalidateRgn(hWnd, NULL, FALSE);
+}
+
 VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 {
 	/*SYSTEMTIME st;
@@ -667,4 +719,118 @@ VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 	RECT* temp = &temp1;*/
 	UpdateFrame(hWnd);
 	InvalidateRgn(hWnd, NULL, FALSE);
+}
+
+void Update()
+{
+	DWORD newTime = GetTickCount();
+	static DWORD oldTime = newTime;
+	if (newTime - oldTime < 100)
+		return;
+	oldTime = newTime;
+	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	{
+		ptAni.x += 10;
+	}
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	{
+		ptAni.x -= 10;
+	}
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	{
+		ptAni.y -= 10;
+	}
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	{
+		ptAni.y += 10;
+	}
+}
+
+BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	TCHAR word[128];
+	UNREFERENCED_PARAMETER(lParam);
+	switch (iMsg)
+	{
+	case WM_INITDIALOG:
+	{
+		HWND hBtn = GetDlgItem(hDlg, IDC_START);
+		EnableWindow(hBtn, FALSE);
+	}
+	return TRUE;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+//IDC_EDIT_SOURCE
+//IDC_EDIT_COPY
+		case IDC_BUTTON_COPY:
+		{
+			TCHAR word[128];
+			GetDlgItemText(hDlg, IDC_EDIT_SOURCE, word, 128);
+			SetDlgItemText(hDlg, IDC_EDIT_COPY, word);
+		}
+		break;
+		case IDC_BUTTON_CLEAR:
+		{
+			SetDlgItemText(hDlg, IDC_EDIT_SOURCE, _T(""));
+			SetDlgItemText(hDlg, IDC_EDIT_COPY, _T(""));
+		}
+		break;
+		case IDC_START:
+		{
+			HWND hBtn = GetDlgItem(hDlg, IDC_START);
+			EnableWindow(hBtn, FALSE);
+
+			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+			EnableWindow(hBtn, TRUE);
+
+			SetDlgItemText(hDlg, IDC_TEXT, _T("시작됐어요~~"));
+		}
+			break;
+		case IDC_PAUSE:
+		{
+			HWND hBtn = GetDlgItem(hDlg, IDC_START);
+			EnableWindow(hBtn, TRUE);
+
+			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+			EnableWindow(hBtn, FALSE);
+
+			SetDlgItemText(hDlg, IDC_TEXT, _T("멈춤~~"));
+		}
+			break;
+		case IDC_CLOSE:
+		{
+			HWND hBtn = GetDlgItem(hDlg, IDC_START);
+			EnableWindow(hBtn, TRUE);
+
+			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+			EnableWindow(hBtn, FALSE);
+
+			SetDlgItemText(hDlg, IDC_TEXT, _T("끝~~"));
+
+			//EndDialog(hDlg, LOWORD(wParam));
+			return TRUE;
+		}
+		break;
+		case IDC_BUTTON_PRINT:
+		{
+			HDC hdc = GetDC(hDlg);
+
+			TextOut(hdc, 10, 10, _T("Hello Button!!"), 14);
+			SetDlgItemText(hDlg, IDC_TEXT, _T("Hello Button!!"));
+
+			ReleaseDC(hDlg, hdc);
+		}
+		break;
+		case IDOK:
+		case IDCANCEL:
+		{
+
+			EndDialog(hDlg, LOWORD(wParam));
+			return TRUE;
+		}
+		break;
+		}
+	}
+	return FALSE;
 }
