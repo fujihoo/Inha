@@ -8,6 +8,13 @@
 #include "WindowDraw.h"
 #include <commdlg.h>
 
+// >> : GDI+
+#include <objidl.h>
+#include <gdiplus.h>
+#pragma comment(lib, "Gdiplus.lib")
+using namespace Gdiplus;
+// << :
+
 #pragma comment(lib, "msimg32.lib")
 
 #define MAX_LOADSTRING 100
@@ -52,6 +59,14 @@ void DrawBitmap(HDC hdc);
 void DeleteBitmap();
 //void DeleteBitmpa();
 // << :
+
+// >> : GDI+
+ULONG_PTR g_GdiToken;
+void Gdi_Init();
+void Gdi_Draw(HDC hdc);
+void Gdi_End();
+// << : GDI+
+
 
 VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
@@ -105,7 +120,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}*/
-
+	Gdi_Init();
 	while (true)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -125,7 +140,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			Update();
 		}
 	}
-
+	Gdi_End();
 	return (int)msg.wParam;
 }
 
@@ -672,6 +687,10 @@ void DrawBitmapDoubleBuffering(HDC hdc)
 		DeleteDC(hMemDC2);
 	}
 
+	// >> : Gdi+
+	Gdi_Draw(hMemDC);
+	// << :
+
 	BitBlt(hdc, 0, 0, screenRect.right, screenRect.bottom, hMemDC, 0, 0, SRCCOPY);
 
 	SelectObject(hMemDC, hOldBitmap);
@@ -683,6 +702,136 @@ void DeleteBitmap()
 	DeleteObject(hBackImage);
 	DeleteObject(hSigongImage);
 	DeleteObject(hAniImage);
+}
+
+void Gdi_Init()
+{
+	GdiplusStartupInput gpsi;
+	GdiplusStartup(&g_GdiToken, &gpsi, NULL);
+}
+
+void Gdi_Draw(HDC hdc)
+{
+	Graphics graphics(hdc);
+	// >> : txt
+	SolidBrush brush(Color(255, 255, 0, 0));
+	FontFamily fontFamily(L"Times New Roman");
+	Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);
+	PointF pointF(10.0f, 20.0f);
+	graphics.DrawString(L"Hello GDI+!", -1, &font, pointF, &brush);
+	// << :
+
+	Pen pen(Color(255, 0, 255, 255));
+	graphics.DrawLine(&pen, 0, 0, 200, 200);
+
+	// >> : image
+	Image	img((WCHAR*)L"images/sigong.png");
+	int w = img.GetWidth();
+	int h = img.GetHeight();
+	graphics.DrawImage(&img, 300, 100, w, h);
+	// << :
+
+	// >> : ani
+	Image	img2((WCHAR*)L"images/zero_run.png");
+	w = img2.GetWidth() / 16;
+	h = img2.GetHeight() / 2;
+	int xStart = curFrame * w;
+	int ystart = 0;
+	ImageAttributes imgAttr;
+	imgAttr.SetColorKey(Color(245, 0, 245), Color(255, 10, 255));
+	graphics.DrawImage(&img2, Rect(400, 100, w, h), xStart, ystart, w, h, UnitPixel, &imgAttr);
+	// <<
+
+	// >> : alpha rect..
+	brush.SetColor(Color(128, 255, 0, 0));
+	graphics.FillRectangle(&brush, 400, 100, w, h);
+	// << 
+
+	int xPos = 300;
+	int yPos = 200;
+	// >> : rotate image
+	Image* pImg = nullptr;
+	pImg = Image::FromFile((WCHAR*)L"images/sigong.png");
+	if (pImg) // NULL 체크
+	{
+		w = pImg->GetWidth();
+		h = pImg->GetHeight();
+
+		Gdiplus::Matrix mat;
+		static int rot = 0;
+
+		mat.RotateAt((rot % 360), Gdiplus::PointF(xPos + (float)(w / 2), yPos + (float)(h / 2)));
+		graphics.SetTransform(&mat);
+		graphics.DrawImage(pImg, xPos, yPos, w, h);
+
+		rot += 10;
+
+		mat.Reset();
+		graphics.SetTransform(&mat);
+	}
+	// << :
+
+	if (pImg)
+	{
+		// >> : alpha image
+		REAL transparency = 0.5f;
+		ColorMatrix colorMatrix =
+		{
+			1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, transparency, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		};
+		imgAttr.SetColorMatrix(&colorMatrix);
+		xPos = 400;
+		graphics.DrawImage(pImg, Rect(xPos, yPos, w, h),	// : dest coord
+			0, 0, w, h,										// : source coord
+			UnitPixel, &imgAttr);
+
+		// gray
+		ColorMatrix grayMatrix =
+		{
+			0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
+			0.6f, 0.6f, 0.6f, 0.0f, 0.0f,
+			0.1f, 0.1f, 0.1f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		};
+		imgAttr.SetColorMatrix(&grayMatrix);
+		xPos = 500;
+		graphics.DrawImage(pImg, Rect(xPos, yPos, w, h),	// : dest coord
+			0, 0, w, h,										// : source coord
+			UnitPixel, &imgAttr);
+
+		// gray
+		ColorMatrix grayMatrix2 =
+		{
+			0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
+			0.6f, 0.6f, 0.6f, 0.0f, 0.0f,
+			0.1f, 0.1f, 0.1f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f, 2.0f,
+		};
+		imgAttr.SetColorMatrix(&grayMatrix2);
+		xPos = 600;
+		graphics.DrawImage(pImg, Rect(xPos, yPos, w, h),	// : dest coord
+			0, 0, w, h,										// : source coord
+			UnitPixel, &imgAttr);
+
+		
+		xPos = 700;
+		pImg->RotateFlip(RotateNoneFlipX);
+		graphics.DrawImage(pImg, Rect(xPos, yPos, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
+
+		delete pImg;
+	}
+	// << :
+}
+
+void Gdi_End()
+{
+	GdiplusShutdown(g_GdiToken);
 }
 
 void UpdateFrame(HWND hWnd)
@@ -761,8 +910,8 @@ BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-//IDC_EDIT_SOURCE
-//IDC_EDIT_COPY
+			//IDC_EDIT_SOURCE
+			//IDC_EDIT_COPY
 		case IDC_BUTTON_COPY:
 		{
 			TCHAR word[128];
@@ -786,7 +935,7 @@ BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 			SetDlgItemText(hDlg, IDC_TEXT, _T("시작됐어요~~"));
 		}
-			break;
+		break;
 		case IDC_PAUSE:
 		{
 			HWND hBtn = GetDlgItem(hDlg, IDC_START);
@@ -797,7 +946,7 @@ BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 			SetDlgItemText(hDlg, IDC_TEXT, _T("멈춤~~"));
 		}
-			break;
+		break;
 		case IDC_CLOSE:
 		{
 			HWND hBtn = GetDlgItem(hDlg, IDC_START);
@@ -825,7 +974,6 @@ BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case IDOK:
 		case IDCANCEL:
 		{
-
 			EndDialog(hDlg, LOWORD(wParam));
 			return TRUE;
 		}
