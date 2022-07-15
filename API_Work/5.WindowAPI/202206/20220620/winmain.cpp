@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "WindowAPI.h"
 #include "WindowDraw.h"
+#include <CommCtrl.h>
 #include <commdlg.h>
 
 // >> : GDI+
@@ -84,7 +85,15 @@ PAINTSTRUCT ps;
 
 // >> : dialog box
 BOOL CALLBACK Dlg_Proc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK Dlg_Proc2(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK Dlg_Proc3(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
+
+HWND g_DlgHwnd = NULL;
+
+void MakeColumn(HWND hDlg);
+
+void InsertData(HWND hDlg);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -215,6 +224,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 static RECT screenRect;
 
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) // 메
 {
 	/*static Game maingame;*/
@@ -235,329 +245,338 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	/*static ObjectCircle circle[100];*/
 	switch (message)
 	{
-	case WM_CREATE:
-	{
-		x = 50, y = 50;
-		Selection = FALSE;
+		case WM_CREATE:
+		{
+			x = 50, y = 50;
+			Selection = FALSE;
 
-		GetClientRect(hWnd, &screenRect);
-		//GetClientRect(hWnd, &rectView);
-		/*count = 0;
-		yPos = 120;*/
-		CreateBitmap();
+			GetClientRect(hWnd, &screenRect);
+			//GetClientRect(hWnd, &rectView);
+			/*count = 0;
+			yPos = 120;*/
+			CreateBitmap();
 
-		SetTimer(hWnd, 1, 200, KeyStateProc);
-		SetTimer(hWnd, 3, 100, TimerProc);
+			SetTimer(hWnd, 1, 200, (TIMERPROC)KeyStateProc);
+			SetTimer(hWnd, 3, 100, (TIMERPROC)TimerProc);
 
 
-		/*CreateCaret(hWnd, NULL, 3, 20);*/
-		/*ShowCaret(hWnd);*/
-		hMenu = GetMenu(hWnd);
-		hSubMenu = GetSubMenu(hMenu, 2);
-		EnableMenuItem(hSubMenu, ID_DrawCircle, MF_ENABLED);
-		EnableMenuItem(hSubMenu, ID_DrawRectangle, MF_ENABLED);
-	}
-	break;
-	case WM_TIMER:
+			/*CreateCaret(hWnd, NULL, 3, 20);*/
+			/*ShowCaret(hWnd);*/
+			hMenu = GetMenu(hWnd);
+			hSubMenu = GetSubMenu(hMenu, 2);
+			EnableMenuItem(hSubMenu, ID_DrawCircle, MF_ENABLED);
+			EnableMenuItem(hSubMenu, ID_DrawRectangle, MF_ENABLED);
+		}
 		break;
-	case WM_COMMAND:
-	{
-		int wmId = LOWORD(wParam);
-		// 메뉴 선택을 구문 분석합니다:
-		switch (wmId)
+		case WM_TIMER:
+			break;
+		case WM_COMMAND:
 		{
-		case ID_FILEOPEN:
-		{
-			TCHAR str[100], lpstrFile[100] = _T(" ");
-			TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
-
-			OPENFILENAME ofn;
-			memset(&ofn, 0, sizeof(OPENFILENAME));
-			ofn.lStructSize = sizeof(OPENFILENAME);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFilter = filter;
-			ofn.lpstrFile = lpstrFile;
-			ofn.nMaxFile = 100;
-			ofn.lpstrInitialDir = _T(".");
-			if (GetOpenFileName(&ofn) != 0)
+			int wmId = LOWORD(wParam);
+			// 메뉴 선택을 구문 분석합니다:
+			switch (wmId)
 			{
-				_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
-				MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
-			}
-			break;
-		}
-		case ID_FILESAVE:
-		{
-			TCHAR str[100], lpstrFile[100] = _T(" ");
-			TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
-
-			OPENFILENAME ofn;
-			memset(&ofn, 0, sizeof(OPENFILENAME));
-			ofn.lStructSize = sizeof(OPENFILENAME);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFilter = filter;
-			ofn.lpstrFile = lpstrFile;
-			ofn.nMaxFile = 100;
-			ofn.lpstrInitialDir = _T(".");
-			if (GetSaveFileName(&ofn) != 0)
-			{
-				_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
-				MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
-			}
-			break;
-		}
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case ID_DrawCircle:
-		case ID_DrawRectangle:
-		{
-			selectedMenu = wmId;
-			int answer = MessageBox(hWnd, _T("선택한 메뉴로 실행하겠습니까?"), _T("메뉴선택확인"), MB_OKCANCEL);
-
-			if (answer == IDOK)
-			{
-				//InvalidateRect(hWnd, NULL, TRUE);
-			}
-			else if (answer == IDCANCEL)
-			{
-
-			}
-			break;
-		}
-
-		case IDM_EXIT:
-		{
-			DestroyWindow(hWnd);
-			break;
-		}
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-	}
-	break;
-	case WM_PAINT:
-	{
-		//PAINTSTRUCT ps;
-		hdc = BeginPaint(hWnd, &ps);
-
-		//DrawBitmapDoubleBuffering(hWnd, hdc);
-		DrawBitmapDoubleBuffering(hdc);
-		/*POINT A, B;
-		A.x = x + 20, A.y = 20;*/
-
-		//if (Selection)
-		//	Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
-		//Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
-		/*if (flag)
-			SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
-
-
-			/*	case ID_DrawCircle:
-
-				case ID_DrawRectangle:*/
-				// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-				/*DrawLine_Test(hdc);*/
-				/*POINT a, b;
-				a.x = 0;
-				a.y = 0;
-				b.x = 700;
-				b.y = 700;*/
-
-				/*POINT O;
-				O.x = 500;
-				O.y = 450;
-				int Radius = 200;
-				int numofang = 6;
-
-				DrawStar(hdc, O, Radius, numofang);*/
-
-				/*POINT A_1{ 100, 100 }, A_2{ 200, 200 }, B_1{ 200, 0 }, B_2{ 300, 100 },
-					C_1{ 300, 100 }, C_2{ 400, 200 }, D_1{ 200, 200 }, D_2{ 300, 300 };
-
-				RECT rc1{ A_1.x, A_1.y, A_2.x, A_2.y };
-				if (x != -1)
+				case ID_FILEOPEN:
 				{
-					DrawRectangle(hdc, A_1, A_2);
-					DrawText(hdc, _T("왼쪽"), _tcslen(_T("왼쪽")), &rc1, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-				}
-				else
-					DrawRedRectangle(hdc, A_1, A_2);
+					TCHAR str[100], lpstrFile[100] = _T(" ");
+					TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
 
-				RECT rc2{ B_1.x, B_1.y, B_2.x, B_2.y };
-				if (y != -1)
-				{
-					DrawRectangle(hdc, B_1, B_2);
-					DrawText(hdc, _T("위쪽"), _tcslen(_T("위쪽")), &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-				}
-				else
-					DrawRedRectangle(hdc, B_1, B_2);
-
-				RECT rc3{ C_1.x, C_1.y, C_2.x, C_2.y };
-				if (x != 1)
-				{
-					DrawRectangle(hdc, C_1, C_2);
-					DrawText(hdc, _T("오른쪽"), _tcslen(_T("오른쪽")), &rc3, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-				}
-				else
-					DrawRedRectangle(hdc, C_1, C_2);
-
-				RECT rc4{ D_1.x, D_1.y, D_2.x, D_2.y };
-				if (y != 1)
-				{
-					DrawRectangle(hdc, D_1, D_2);
-					DrawText(hdc, _T("아래쪽"), _tcslen(_T("아래쪽")), &rc4, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-				}
-				else
-					DrawRedRectangle(hdc, D_1, D_2);*/
-
-					/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
-					//DrawCircle(hdc, O, Radius);
-					/*DrawGrid(hdc, a, b, 20, 20);
-					DrawCircle_Test(hdc);
+					OPENFILENAME ofn;
+					memset(&ofn, 0, sizeof(OPENFILENAME));
+					ofn.lStructSize = sizeof(OPENFILENAME);
+					ofn.hwndOwner = hWnd;
+					ofn.lpstrFilter = filter;
+					ofn.lpstrFile = lpstrFile;
+					ofn.nMaxFile = 100;
+					ofn.lpstrInitialDir = _T(".");
+					if (GetOpenFileName(&ofn) != 0)
 					{
-						HPEN hPen, oldPen;
-						hPen = CreatePen(PS_DOT, 1, RGB(255, 0, 0));
-						oldPen = (HPEN)SelectObject(hdc, hPen);
-						DrawPolygon_Test(hdc);
-						SelectObject(hdc, oldPen);
-						DeleteObject(hPen);
+						_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
+						MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
 					}
+					break;
+				}
+				case ID_FILESAVE:
+				{
+					TCHAR str[100], lpstrFile[100] = _T(" ");
+					TCHAR filter[] = _T("Every File(*.*) \0*.*\0Text File\0*.t\0;*.doc\0");
 
+					OPENFILENAME ofn;
+					memset(&ofn, 0, sizeof(OPENFILENAME));
+					ofn.lStructSize = sizeof(OPENFILENAME);
+					ofn.hwndOwner = hWnd;
+					ofn.lpstrFilter = filter;
+					ofn.lpstrFile = lpstrFile;
+					ofn.nMaxFile = 100;
+					ofn.lpstrInitialDir = _T(".");
+					if (GetSaveFileName(&ofn) != 0)
 					{
-						HBRUSH hBrush, oldBrush;
-						hBrush = CreateSolidBrush(RGB(0, 255, 0));
-						oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-						DrawPolygon_Test(hdc);
-						SelectObject(hdc, oldBrush);
-						DeleteObject(hBrush);
-					}*/
+						_stprintf_s(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
+						MessageBox(hWnd, str, _T("열기 선택"), MB_OK);
+					}
+					break;
+				}
+				case IDM_ABOUT:
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+					break;
+				case ID_DrawCircle:
+				case ID_DrawRectangle:
+				{
+					selectedMenu = wmId;
+					int answer = MessageBox(hWnd, _T("선택한 메뉴로 실행하겠습니까?"), _T("메뉴선택확인"), MB_OKCANCEL);
 
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_SIZE:
-	{
-		GetClientRect(hWnd, &screenRect);
-	}
-	break;
-	case WM_LBUTTONDOWN:
-	{
-		POINT StartPos;
-		StartPos.x = LOWORD(lParam);
-		StartPos.y = HIWORD(lParam);
-		DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, Dlg_Proc);
+					if (answer == IDOK)
+					{
+						//InvalidateRect(hWnd, NULL, TRUE);
+					}
+					else if (answer == IDCANCEL)
+					{
 
+					}
+					break;
+				}
 
-		/*if (InCircle(x, y, mx, my))
-			Selection = TRUE;*/
-
-			//InvalidateRgn(hWnd, NULL, TRUE);
-		break;
-	}
-	case WM_LBUTTONUP:
-	{
-		Selection = FALSE;
-		//InvalidateRgn(hWnd, NULL, TRUE);
-		break;
-	}
-	case WM_MOUSEMOVE:
-		mx = LOWORD(lParam);
-		my = HIWORD(lParam);
-		if (Selection)
-		{
-			x = mx;
-			y = my;
-			//InvalidateRgn(hWnd, NULL, TRUE);
+				case IDM_EXIT:
+				{
+					DestroyWindow(hWnd);
+					break;
+				}
+				default:
+					return DefWindowProc(hWnd, message, wParam, lParam);
+			}
 		}
 		break;
-	case WM_CHAR:
-	{
-		/*int breakpoint = 999;
-
-		if (wParam == VK_BACK && count > 0) count--;
-		else if (wParam == VK_RETURN) yPos += 20;
-		else str[count++] = wParam;
-		str[count] = NULL;
-
-		InvalidateRect(hWnd, NULL, TRUE);*/
-	}
-	break;
-	case WM_KEYUP:
-	{
-		/*flag = false;*/
-
-		/*switch (wParam)
+		case WM_PAINT:
 		{
-		case VK_RIGHT:
-			x = 0;
-			break;
-		case VK_LEFT:
-			x = 0;
-			break;
-		case VK_DOWN:
-			y = 0;
-			break;
-		case VK_UP:
-			y = 0;
-			break;
-		default:
+			//PAINTSTRUCT ps;
+			hdc = BeginPaint(hWnd, &ps);
+
+			//DrawBitmapDoubleBuffering(hWnd, hdc);
+			DrawBitmapDoubleBuffering(hdc);
+			/*POINT A, B;
+			A.x = x + 20, A.y = 20;*/
+
+			//if (Selection)
+			//	Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+			//Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+			/*if (flag)
+				SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));*/
+
+
+				/*	case ID_DrawCircle:
+
+					case ID_DrawRectangle:*/
+					// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+					/*DrawLine_Test(hdc);*/
+					/*POINT a, b;
+					a.x = 0;
+					a.y = 0;
+					b.x = 700;
+					b.y = 700;*/
+
+					/*POINT O;
+					O.x = 500;
+					O.y = 450;
+					int Radius = 200;
+					int numofang = 6;
+
+					DrawStar(hdc, O, Radius, numofang);*/
+
+					/*POINT A_1{ 100, 100 }, A_2{ 200, 200 }, B_1{ 200, 0 }, B_2{ 300, 100 },
+						C_1{ 300, 100 }, C_2{ 400, 200 }, D_1{ 200, 200 }, D_2{ 300, 300 };
+
+					RECT rc1{ A_1.x, A_1.y, A_2.x, A_2.y };
+					if (x != -1)
+					{
+						DrawRectangle(hdc, A_1, A_2);
+						DrawText(hdc, _T("왼쪽"), _tcslen(_T("왼쪽")), &rc1, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					}
+					else
+						DrawRedRectangle(hdc, A_1, A_2);
+
+					RECT rc2{ B_1.x, B_1.y, B_2.x, B_2.y };
+					if (y != -1)
+					{
+						DrawRectangle(hdc, B_1, B_2);
+						DrawText(hdc, _T("위쪽"), _tcslen(_T("위쪽")), &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					}
+					else
+						DrawRedRectangle(hdc, B_1, B_2);
+
+					RECT rc3{ C_1.x, C_1.y, C_2.x, C_2.y };
+					if (x != 1)
+					{
+						DrawRectangle(hdc, C_1, C_2);
+						DrawText(hdc, _T("오른쪽"), _tcslen(_T("오른쪽")), &rc3, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					}
+					else
+						DrawRedRectangle(hdc, C_1, C_2);
+
+					RECT rc4{ D_1.x, D_1.y, D_2.x, D_2.y };
+					if (y != 1)
+					{
+						DrawRectangle(hdc, D_1, D_2);
+						DrawText(hdc, _T("아래쪽"), _tcslen(_T("아래쪽")), &rc4, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					}
+					else
+						DrawRedRectangle(hdc, D_1, D_2);*/
+
+						/*DrawSunflower(hdc, O, Radius, numofcircumscribedcircle);*/
+						//DrawCircle(hdc, O, Radius);
+						/*DrawGrid(hdc, a, b, 20, 20);
+						DrawCircle_Test(hdc);
+						{
+							HPEN hPen, oldPen;
+							hPen = CreatePen(PS_DOT, 1, RGB(255, 0, 0));
+							oldPen = (HPEN)SelectObject(hdc, hPen);
+							DrawPolygon_Test(hdc);
+							SelectObject(hdc, oldPen);
+							DeleteObject(hPen);
+						}
+
+						{
+							HBRUSH hBrush, oldBrush;
+							hBrush = CreateSolidBrush(RGB(0, 255, 0));
+							oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+							DrawPolygon_Test(hdc);
+							SelectObject(hdc, oldBrush);
+							DeleteObject(hBrush);
+						}*/
+
+			EndPaint(hWnd, &ps);
+		}
+		break;
+		case WM_SIZE:
+		{
+			GetClientRect(hWnd, &screenRect);
+		}
+		break;
+		case WM_LBUTTONDOWN:
+		{
+			POINT StartPos;
+			StartPos.x = LOWORD(lParam);
+			StartPos.y = HIWORD(lParam);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG3), hWnd, (DLGPROC)Dlg_Proc3);
+
+
+			/*if (InCircle(x, y, mx, my))
+				Selection = TRUE;*/
+
+				//InvalidateRgn(hWnd, NULL, TRUE);
 			break;
 		}
-		*/
-		/*InvalidateRect(hWnd, NULL, TRUE);
-		break;*/
-	}
-	case WM_KEYDOWN:
-	{
-		/*if (wParam == VK_RIGHT)
-			SetTimer(hWnd, 1, 70, NULL);*/
-			/*{
-				flag = true;
-				x += 40;
-				if (x + 20 > rectView.right)
-					x = rectView.right - 40;
-			}*/
-			/*int breakpoint = 999;*/
+		case WM_LBUTTONUP:
+		{
+			Selection = FALSE;
+			//InvalidateRgn(hWnd, NULL, TRUE);
+			break;
+		}
+		case WM_RBUTTONDOWN:
+		{
+			//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, (DLGPROC)Dlg_Proc2);
+			if (!IsWindow(g_DlgHwnd))
+			{
+				g_DlgHwnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, (DLGPROC)Dlg_Proc2);
+				ShowWindow(g_DlgHwnd, SW_SHOW);
+			}
+		}
+		case WM_MOUSEMOVE:
+			mx = LOWORD(lParam);
+			my = HIWORD(lParam);
+			if (Selection)
+			{
+				x = mx;
+				y = my;
+				//InvalidateRgn(hWnd, NULL, TRUE);
+			}
+			break;
+		case WM_CHAR:
+		{
+			/*int breakpoint = 999;
+
+			if (wParam == VK_BACK && count > 0) count--;
+			else if (wParam == VK_RETURN) yPos += 20;
+			else str[count++] = wParam;
+			str[count] = NULL;
+
+			InvalidateRect(hWnd, NULL, TRUE);*/
+		}
+		break;
+		case WM_KEYUP:
+		{
+			/*flag = false;*/
+
 			/*switch (wParam)
 			{
 			case VK_RIGHT:
-				x = 1;
+				x = 0;
 				break;
 			case VK_LEFT:
-				x = -1;
+				x = 0;
 				break;
 			case VK_DOWN:
-				y = 1;
+				y = 0;
 				break;
 			case VK_UP:
-				y = -1;
+				y = 0;
 				break;
 			default:
 				break;
-			}*/
-			//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
-			/*break;*/
-		break;
-	}
-	/*case WM_TIMER:
-		x += 40;
-		if (x + 20 > rectView.right)
-			x = rectView.right - 40;
-		InvalidateRgn(hWnd, NULL, TRUE);
-		break;*/
-	case WM_DESTROY:
-		/*	HideCaret(hWnd);
-			DestroyCaret();*/
-			//DeleteBitmpa();
-		DeleteBitmap();
-		PostQuitMessage(0);
-		break;
-		/*case WM_SIZE:
-			GetClientRect(hWnd, &rectView);
+			}
+			*/
+			/*InvalidateRect(hWnd, NULL, TRUE);
 			break;*/
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		case WM_KEYDOWN:
+		{
+			/*if (wParam == VK_RIGHT)
+				SetTimer(hWnd, 1, 70, NULL);*/
+				/*{
+					flag = true;
+					x += 40;
+					if (x + 20 > rectView.right)
+						x = rectView.right - 40;
+				}*/
+				/*int breakpoint = 999;*/
+				/*switch (wParam)
+				{
+				case VK_RIGHT:
+					x = 1;
+					break;
+				case VK_LEFT:
+					x = -1;
+					break;
+				case VK_DOWN:
+					y = 1;
+					break;
+				case VK_UP:
+					y = -1;
+					break;
+				default:
+					break;
+				}*/
+				//InvalidateRect(hWnd, NULL, TRUE);	// 기존 화면 지워주면서 다시 프린트
+				/*break;*/
+			break;
+		}
+		/*case WM_TIMER:
+			x += 40;
+			if (x + 20 > rectView.right)
+				x = rectView.right - 40;
+			InvalidateRgn(hWnd, NULL, TRUE);
+			break;*/
+		case WM_DESTROY:
+			/*	HideCaret(hWnd);
+				DestroyCaret();*/
+				//DeleteBitmpa();
+			DeleteBitmap();
+			PostQuitMessage(0);
+			break;
+			/*case WM_SIZE:
+				GetClientRect(hWnd, &rectView);
+				break;*/
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
@@ -568,16 +587,16 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	UNREFERENCED_PARAMETER(lParam);
 	switch (message)
 	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
+		case WM_INITDIALOG:
 			return (INT_PTR)TRUE;
-		}
-		break;
+
+		case WM_COMMAND:
+			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+			{
+				EndDialog(hDlg, LOWORD(wParam));
+				return (INT_PTR)TRUE;
+			}
+			break;
 	}
 	return (INT_PTR)FALSE;
 }
@@ -819,7 +838,7 @@ void Gdi_Draw(HDC hdc)
 			0, 0, w, h,										// : source coord
 			UnitPixel, &imgAttr);
 
-		
+
 		xPos = 700;
 		pImg->RotateFlip(RotateNoneFlipX);
 		graphics.DrawImage(pImg, Rect(xPos, yPos, w, h), 0, 0, w, h, UnitPixel, &imgAttr);
@@ -901,84 +920,242 @@ BOOL CALLBACK Dlg_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	UNREFERENCED_PARAMETER(lParam);
 	switch (iMsg)
 	{
-	case WM_INITDIALOG:
-	{
-		HWND hBtn = GetDlgItem(hDlg, IDC_START);
-		EnableWindow(hBtn, FALSE);
+		case WM_INITDIALOG:
+		{
+			MakeColumn(hDlg);
+			HWND hBtn = GetDlgItem(hDlg, IDC_START);
+			EnableWindow(hBtn, FALSE);
+		}
+		return TRUE;
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				//IDC_EDIT_SOURCE
+				//IDC_EDIT_COPY
+				case IDC_BUTTON_COPY:
+				{
+					TCHAR word[128];
+					GetDlgItemText(hDlg, IDC_EDIT_SOURCE, word, 128);
+					SetDlgItemText(hDlg, IDC_EDIT_COPY, word);
+				}
+				break;
+				case IDC_BUTTON_CLEAR:
+				{
+					SetDlgItemText(hDlg, IDC_EDIT_SOURCE, _T(""));
+					SetDlgItemText(hDlg, IDC_EDIT_COPY, _T(""));
+				}
+				break;
+				case IDC_START:
+				{
+					HWND hBtn = GetDlgItem(hDlg, IDC_START);
+					EnableWindow(hBtn, FALSE);
+
+					hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+					EnableWindow(hBtn, TRUE);
+
+					SetDlgItemText(hDlg, IDC_TEXT, _T("시작됐어요~~"));
+				}
+				break;
+				case IDC_PAUSE:
+				{
+					HWND hBtn = GetDlgItem(hDlg, IDC_START);
+					EnableWindow(hBtn, TRUE);
+
+					hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+					EnableWindow(hBtn, FALSE);
+
+					SetDlgItemText(hDlg, IDC_TEXT, _T("멈춤~~"));
+				}
+				break;
+				case IDC_CLOSE:
+				{
+					HWND hBtn = GetDlgItem(hDlg, IDC_START);
+					EnableWindow(hBtn, TRUE);
+
+					hBtn = GetDlgItem(hDlg, IDC_PAUSE);
+					EnableWindow(hBtn, FALSE);
+
+					SetDlgItemText(hDlg, IDC_TEXT, _T("끝~~"));
+
+					//EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+				break;
+				case IDC_BUTTON_PRINT:
+				{
+					HDC hdc = GetDC(hDlg);
+
+					TextOut(hdc, 10, 10, _T("Hello Button!!"), 14);
+					SetDlgItemText(hDlg, IDC_TEXT, _T("Hello Button!!"));
+
+					ReleaseDC(hDlg, hdc);
+				}
+				break;
+				case IDOK:
+				case IDCANCEL:
+				{
+					EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+				break;
+			}
 	}
-	return TRUE;
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
+	return FALSE;
+}
+
+BOOL CALLBACK Dlg_Proc2(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	static HWND hCombo;
+	static HWND hList;
+
+	static int selection;
+	TCHAR name[20];
+
+	UNREFERENCED_PARAMETER(lParam);
+	switch (iMsg)
+	{
+		case WM_INITDIALOG:
 		{
-			//IDC_EDIT_SOURCE
-			//IDC_EDIT_COPY
-		case IDC_BUTTON_COPY:
+			hCombo = GetDlgItem(hDlg, IDC_COMBO_LIST);
+			hList = GetDlgItem(hDlg, IDC_LIST_NAME);
+			return TRUE;
+		}
+		case WM_COMMAND:
 		{
-			TCHAR word[128];
-			GetDlgItemText(hDlg, IDC_EDIT_SOURCE, word, 128);
-			SetDlgItemText(hDlg, IDC_EDIT_COPY, word);
+			switch (LOWORD(wParam))
+			{
+				case IDC_BUTTON_INSERT:
+					GetDlgItemText(hDlg, IDC_EDIT_NAME, name, 20);
+					if (_tcscmp(name, _T("")))
+					{
+						SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)name);
+						SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)name);
+						SetDlgItemText(hDlg, IDC_EDIT_NAME, _T(""));
+					}
+					return 0;
+				case IDC_BUTTON_DELETE:
+					SendMessage(hCombo, CB_DELETESTRING, selection, 0);
+					SendMessage(hList, LB_DELETESTRING, selection, 0);
+					return 0;
+				case IDC_COMBO_LIST:
+					if (HIWORD(wParam) == CBN_SELCHANGE)
+					{
+						selection = SendMessage(hCombo, CB_GETCURSEL, 0, 0);
+					}
+					break;
+				case IDC_LIST_NAME:
+					if (HIWORD(wParam) == LBN_SELCHANGE)
+					{
+						selection = SendMessage(hList, LB_GETCURSEL, 0, 0);
+					}
+					break;
+				case IDC_CLOSE:
+				{
+					DestroyWindow(hDlg);
+					hDlg = NULL;
+					return 0;
+				}
+				case IDOK:
+				case IDCANCEL:
+				{
+					EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+			}
 		}
 		break;
-		case IDC_BUTTON_CLEAR:
+	}
+	return FALSE;
+}
+
+void MakeColumn(HWND hDlg)
+{
+	LPCTSTR name[2] = { _T("이름"), _T("전화번호") };
+	LVCOLUMN lvCol = { 0, };
+	HWND hList;
+	int i;
+	hList = GetDlgItem(hDlg, IDC_LIST_MEMBER);
+
+	RECT rt;
+	GetClientRect(hList, &rt);
+
+	lvCol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	lvCol.fmt = LVCFMT_LEFT;
+
+	for (i = 0; i < 2; i++)
+	{
+		lvCol.cx = (int)rt.right / 2; // 90
+		lvCol.iSubItem = i;
+		lvCol.pszText = (LPWSTR)name[i];
+		SendMessage(hList, LVM_INSERTCOLUMN, (WPARAM)i, (LPARAM)&lvCol);
+	}
+}
+
+void InsertData(HWND hDlg)
+{
+	int		count;
+	LVITEM	item;
+	HWND	hList;
+	TCHAR	name[20], phone[20];
+
+	GetDlgItemText(hDlg, IDC_EDIT_NAME, name, 20);
+	SetDlgItemText(hDlg, IDC_EDIT_NAME, _T(""));
+	if (_tcscmp(name, _T("")) == 0) return;
+	GetDlgItemText(hDlg, IDC_EDIT_PHONE, phone, 20);
+	SetDlgItemText(hDlg, IDC_EDIT_PHONE, _T(""));
+
+	hList = GetDlgItem(hDlg, IDC_LIST_MEMBER);
+	count = ListView_GetItemCount(hList);
+	item.mask = LVIF_TEXT;
+	item.iItem = count;
+	item.iSubItem = 0;
+	item.pszText = name;
+	ListView_InsertItem(hList, &item);
+	ListView_SetItemText(hList, count, 1, phone);
+	/*LPCTSTR	name[20]{ _T("김철수"), _T("김영희") };
+	LPCTSTR	phone[20] = { _T("010-1111-1111"), _T("010-2222-2222") };*/
+
+	/*hList = GetDlgItem(hDlg, IDC_LIST_MEMBER);
+
+	for (i = 0; i < 2; i++)
+	{
+		item.mask = LVIF_TEXT;
+		item.iItem = i;
+		item.iSubItem = 0;
+		item.pszText = (LPWSTR)name[i];
+		ListView_InsertItem(hList, &item);
+		ListView_SetItemText(hList, i, 1, (LPWSTR)phone[i]);
+	}*/
+}
+
+BOOL CALLBACK Dlg_Proc3(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (iMsg)
+	{
+		case WM_INITDIALOG:
 		{
-			SetDlgItemText(hDlg, IDC_EDIT_SOURCE, _T(""));
-			SetDlgItemText(hDlg, IDC_EDIT_COPY, _T(""));
-		}
-		break;
-		case IDC_START:
-		{
-			HWND hBtn = GetDlgItem(hDlg, IDC_START);
-			EnableWindow(hBtn, FALSE);
-
-			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
-			EnableWindow(hBtn, TRUE);
-
-			SetDlgItemText(hDlg, IDC_TEXT, _T("시작됐어요~~"));
-		}
-		break;
-		case IDC_PAUSE:
-		{
-			HWND hBtn = GetDlgItem(hDlg, IDC_START);
-			EnableWindow(hBtn, TRUE);
-
-			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
-			EnableWindow(hBtn, FALSE);
-
-			SetDlgItemText(hDlg, IDC_TEXT, _T("멈춤~~"));
-		}
-		break;
-		case IDC_CLOSE:
-		{
-			HWND hBtn = GetDlgItem(hDlg, IDC_START);
-			EnableWindow(hBtn, TRUE);
-
-			hBtn = GetDlgItem(hDlg, IDC_PAUSE);
-			EnableWindow(hBtn, FALSE);
-
-			SetDlgItemText(hDlg, IDC_TEXT, _T("끝~~"));
-
-			//EndDialog(hDlg, LOWORD(wParam));
+			MakeColumn(hDlg);
 			return TRUE;
 		}
 		break;
-		case IDC_BUTTON_PRINT:
+		case WM_COMMAND:
 		{
-			HDC hdc = GetDC(hDlg);
-
-			TextOut(hdc, 10, 10, _T("Hello Button!!"), 14);
-			SetDlgItemText(hDlg, IDC_TEXT, _T("Hello Button!!"));
-
-			ReleaseDC(hDlg, hdc);
+			switch (LOWORD(wParam))
+			{
+				case IDC_BUTTON_INSERT:
+					InsertData(hDlg);
+					return 0;
+				case IDCLOSE:
+					DestroyWindow(hDlg);
+					hDlg = NULL;
+					return 0;
+				case IDCANCEL:
+					DestroyWindow(hDlg);
+					hDlg = NULL;
+					return 0;
+			}
 		}
 		break;
-		case IDOK:
-		case IDCANCEL:
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return TRUE;
-		}
-		break;
-		}
 	}
 	return FALSE;
 }
