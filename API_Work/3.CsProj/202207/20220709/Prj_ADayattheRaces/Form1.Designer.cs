@@ -190,6 +190,20 @@ namespace Prj_ADayattheRaces
             this.Bets.UseVisualStyleBackColor = true;
             this.Bets.Click += new System.EventHandler(this.Button1_Click);
             // 
+            // BetsUpDown
+            // 
+            this.BetsUpDown.Location = new System.Drawing.Point(128, 117);
+            this.BetsUpDown.Name = "BetsUpDown";
+            this.BetsUpDown.Size = new System.Drawing.Size(120, 23);
+            this.BetsUpDown.TabIndex = 17;
+            // 
+            // DogNumberUpDown
+            // 
+            this.DogNumberUpDown.Location = new System.Drawing.Point(449, 117);
+            this.DogNumberUpDown.Name = "DogNumberUpDown";
+            this.DogNumberUpDown.Size = new System.Drawing.Size(120, 23);
+            this.DogNumberUpDown.TabIndex = 18;
+            // 
             // label4
             // 
             this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;

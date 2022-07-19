@@ -36,26 +36,28 @@ namespace Prj_ADayattjeRaces
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.DogNumber_ud = new System.Windows.Forms.NumericUpDown();
+            this.Bets_ud = new System.Windows.Forms.NumericUpDown();
+            this.buttonofRace = new System.Windows.Forms.Button();
+            this.buttonofBets = new System.Windows.Forms.Button();
+            this.Al_label = new System.Windows.Forms.Label();
+            this.Bob_label = new System.Windows.Forms.Label();
+            this.Joe_label = new System.Windows.Forms.Label();
+            this.Al_rdb = new System.Windows.Forms.RadioButton();
+            this.Bob_rdb = new System.Windows.Forms.RadioButton();
+            this.Joe_rdb = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.domainUpDown1 = new System.Windows.Forms.DomainUpDown();
-            this.domainUpDown2 = new System.Windows.Forms.DomainUpDown();
-            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DogNumber_ud)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Bets_ud)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -110,157 +112,167 @@ namespace Prj_ADayattjeRaces
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.domainUpDown2);
-            this.groupBox1.Controls.Add(this.domainUpDown1);
-            this.groupBox1.Controls.Add(this.button1);
-            this.groupBox1.Controls.Add(this.label7);
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.radioButton3);
-            this.groupBox1.Controls.Add(this.radioButton2);
-            this.groupBox1.Controls.Add(this.radioButton1);
+            this.groupBox1.Controls.Add(this.DogNumber_ud);
+            this.groupBox1.Controls.Add(this.Bets_ud);
+            this.groupBox1.Controls.Add(this.buttonofRace);
+            this.groupBox1.Controls.Add(this.buttonofBets);
+            this.groupBox1.Controls.Add(this.Al_label);
+            this.groupBox1.Controls.Add(this.Bob_label);
+            this.groupBox1.Controls.Add(this.Joe_label);
+            this.groupBox1.Controls.Add(this.Al_rdb);
+            this.groupBox1.Controls.Add(this.Bob_rdb);
+            this.groupBox1.Controls.Add(this.Joe_rdb);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(26, 372);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(913, 169);
+            this.groupBox1.Size = new System.Drawing.Size(917, 169);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Betting Parlor";
             // 
-            // radioButton3
+            // DogNumber_ud
             // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Location = new System.Drawing.Point(6, 97);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(95, 19);
-            this.radioButton3.TabIndex = 6;
-            this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "radioButton3";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.DogNumber_ud.Location = new System.Drawing.Point(577, 138);
+            this.DogNumber_ud.Name = "DogNumber_ud";
+            this.DogNumber_ud.Size = new System.Drawing.Size(120, 23);
+            this.DogNumber_ud.TabIndex = 15;
+            this.DogNumber_ud.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
-            // radioButton2
+            // Bets_ud
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(6, 72);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(95, 19);
-            this.radioButton2.TabIndex = 5;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "radioButton2";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.Bets_ud.Location = new System.Drawing.Point(174, 141);
+            this.Bets_ud.Name = "Bets_ud";
+            this.Bets_ud.Size = new System.Drawing.Size(120, 23);
+            this.Bets_ud.TabIndex = 14;
+            this.Bets_ud.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
-            // radioButton1
+            // buttonofRace
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 47);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(95, 19);
-            this.radioButton1.TabIndex = 4;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "radioButton1";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.buttonofRace.Font = new System.Drawing.Font("맑은 고딕", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.buttonofRace.Location = new System.Drawing.Point(781, 127);
+            this.buttonofRace.Name = "buttonofRace";
+            this.buttonofRace.Size = new System.Drawing.Size(101, 38);
+            this.buttonofRace.TabIndex = 13;
+            this.buttonofRace.Text = "Race!";
+            this.buttonofRace.UseVisualStyleBackColor = true;
+            // 
+            // buttonofBets
+            // 
+            this.buttonofBets.Font = new System.Drawing.Font("맑은 고딕", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.buttonofBets.Location = new System.Drawing.Point(76, 138);
+            this.buttonofBets.Name = "buttonofBets";
+            this.buttonofBets.Size = new System.Drawing.Size(75, 23);
+            this.buttonofBets.TabIndex = 10;
+            this.buttonofBets.Text = "Bets";
+            this.buttonofBets.UseVisualStyleBackColor = true;
+            // 
+            // Al_label
+            // 
+            this.Al_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Al_label.Location = new System.Drawing.Point(577, 97);
+            this.Al_label.Name = "Al_label";
+            this.Al_label.Size = new System.Drawing.Size(305, 19);
+            this.Al_label.TabIndex = 9;
+            this.Al_label.Text = "label7";
+            // 
+            // Bob_label
+            // 
+            this.Bob_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Bob_label.Location = new System.Drawing.Point(577, 73);
+            this.Bob_label.Name = "Bob_label";
+            this.Bob_label.Size = new System.Drawing.Size(305, 24);
+            this.Bob_label.TabIndex = 8;
+            this.Bob_label.Text = "label6";
+            // 
+            // Joe_label
+            // 
+            this.Joe_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Joe_label.Location = new System.Drawing.Point(577, 48);
+            this.Joe_label.Name = "Joe_label";
+            this.Joe_label.Size = new System.Drawing.Size(305, 25);
+            this.Joe_label.TabIndex = 7;
+            this.Joe_label.Text = "label5";
+            // 
+            // Al_rdb
+            // 
+            this.Al_rdb.AutoSize = true;
+            this.Al_rdb.Location = new System.Drawing.Point(6, 103);
+            this.Al_rdb.Name = "Al_rdb";
+            this.Al_rdb.Size = new System.Drawing.Size(14, 13);
+            this.Al_rdb.TabIndex = 6;
+            this.Al_rdb.TabStop = true;
+            this.Al_rdb.UseVisualStyleBackColor = true;
+            // 
+            // Bob_rdb
+            // 
+            this.Bob_rdb.AutoSize = true;
+            this.Bob_rdb.Location = new System.Drawing.Point(6, 78);
+            this.Bob_rdb.Name = "Bob_rdb";
+            this.Bob_rdb.Size = new System.Drawing.Size(14, 13);
+            this.Bob_rdb.TabIndex = 5;
+            this.Bob_rdb.TabStop = true;
+            this.Bob_rdb.UseVisualStyleBackColor = true;
+            // 
+            // Joe_rdb
+            // 
+            this.Joe_rdb.AutoSize = true;
+            this.Joe_rdb.Location = new System.Drawing.Point(6, 53);
+            this.Joe_rdb.Name = "Joe_rdb";
+            this.Joe_rdb.Size = new System.Drawing.Size(14, 13);
+            this.Joe_rdb.TabIndex = 4;
+            this.Joe_rdb.TabStop = true;
+            this.Joe_rdb.UseVisualStyleBackColor = true;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(599, 19);
+            this.label4.Font = new System.Drawing.Font("맑은 고딕", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label4.Location = new System.Drawing.Point(577, 19);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(39, 15);
+            this.label4.Size = new System.Drawing.Size(50, 25);
             this.label4.TabIndex = 3;
-            this.label4.Text = "label4";
+            this.label4.Text = "Bets";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(349, 142);
+            this.label3.Font = new System.Drawing.Font("맑은 고딕", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label3.Location = new System.Drawing.Point(332, 141);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 15);
+            this.label3.Size = new System.Drawing.Size(161, 20);
             this.label3.TabIndex = 2;
-            this.label3.Text = "label3";
+            this.label3.Text = "bucks on dog number";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 142);
+            this.label2.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label2.Location = new System.Drawing.Point(6, 138);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(39, 15);
+            this.label2.Size = new System.Drawing.Size(53, 21);
             this.label2.TabIndex = 1;
-            this.label2.Text = "label2";
+            this.label2.Text = "Name";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(6, 19);
+            this.label1.Font = new System.Drawing.Font("맑은 고딕", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.Location = new System.Drawing.Point(0, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 21);
+            this.label1.Size = new System.Drawing.Size(136, 25);
             this.label1.TabIndex = 0;
-            this.label1.Text = "label1";
-            // 
-            // label5
-            // 
-            this.label5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label5.Location = new System.Drawing.Point(599, 48);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(267, 23);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "label5";
-            // 
-            // label6
-            // 
-            this.label6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label6.Location = new System.Drawing.Point(599, 73);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(267, 23);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "label6";
-            // 
-            // label7
-            // 
-            this.label7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label7.Location = new System.Drawing.Point(599, 97);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(267, 23);
-            this.label7.TabIndex = 9;
-            this.label7.Text = "label7";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(76, 138);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // domainUpDown1
-            // 
-            this.domainUpDown1.Location = new System.Drawing.Point(181, 138);
-            this.domainUpDown1.Name = "domainUpDown1";
-            this.domainUpDown1.Size = new System.Drawing.Size(120, 23);
-            this.domainUpDown1.TabIndex = 11;
-            this.domainUpDown1.Text = "domainUpDown1";
-            // 
-            // domainUpDown2
-            // 
-            this.domainUpDown2.Location = new System.Drawing.Point(599, 138);
-            this.domainUpDown2.Name = "domainUpDown2";
-            this.domainUpDown2.Size = new System.Drawing.Size(120, 23);
-            this.domainUpDown2.TabIndex = 12;
-            this.domainUpDown2.Text = "domainUpDown2";
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(791, 138);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 13;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
+            this.label1.Text = "Minimum bet";
             // 
             // Form1
             // 
@@ -282,6 +294,8 @@ namespace Prj_ADayattjeRaces
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DogNumber_ud)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Bets_ud)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -294,20 +308,20 @@ namespace Prj_ADayattjeRaces
         private System.Windows.Forms.PictureBox pictureBox4;
         private System.Windows.Forms.PictureBox pictureBox5;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.RadioButton Al_rdb;
+        private System.Windows.Forms.RadioButton Bob_rdb;
+        private System.Windows.Forms.RadioButton Joe_rdb;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.DomainUpDown domainUpDown2;
-        private System.Windows.Forms.DomainUpDown domainUpDown1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button buttonofRace;
+        private System.Windows.Forms.Button buttonofBets;
+        private System.Windows.Forms.Label Al_label;
+        private System.Windows.Forms.Label Bob_label;
+        private System.Windows.Forms.Label Joe_label;
+        private System.Windows.Forms.NumericUpDown Bets_ud;
+        private System.Windows.Forms.NumericUpDown DogNumber_ud;
     }
 }
 
