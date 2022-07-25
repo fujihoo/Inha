@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e722ea32-9afa-4924-b63c-18b6979700bb}</ProjectGuid>
-    <RootNamespace>MyDefenceGame</RootNamespace>
+    <ProjectGuid>{11d5b77d-fa4b-432a-9250-eb2d8e26024b}</ProjectGuid>
+    <RootNamespace>DllTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,25 +139,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Cannon.h" />
+    <ClInclude Include="Dll_Test.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="MyDefenceGame.h" />
-    <ClInclude Include="Object.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cannon.cpp" />
-    <ClCompile Include="MyDefenceGame.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Wall.cpp" />
+    <ClCompile Include="Dll_Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="MyDefenceGame.rc" />
+    <ResourceCompile Include="Dll_Test.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="MyDefenceGame.ico" />
+    <Image Include="Dll_Test.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

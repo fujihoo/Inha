@@ -604,37 +604,117 @@
 //	return 0;
 //}
 
-class Animal
-{
-private:
-	int food;
-	int weight;
+//class Animal
+//{
+//private:
+//	int food;
+//	int weight;
+//
+//public:
+//	void set_animal(int _food, int _weight)
+//	{
+//		food = _food;
+//		weight = _weight;
+//	}
+//	void increase_food(int inc)
+//	{
+//		food += inc;
+//		weight += (inc / 3);
+//	}
+//	void view_stat()
+//	{
+//		std::cout << "이 동물의 food		: " << food << std::endl;
+//		std::cout << "이 동물의 weight	: " << weight << std::endl;
+//	}
+//};
+//
+//int main()
+//{
+//	Animal animal;
+//	animal.set_animal(100, 50);
+//	animal.increase_food(30);
+//
+//	animal.view_stat();
+//
+//	return 0;
+//}
 
-public:
-	void set_animal(int _food, int _weight)
-	{
-		food = _food;
-		weight = _weight;
-	}
-	void increase_food(int inc)
-	{
-		food += inc;
-		weight += (inc / 3);
-	}
-	void view_stat()
-	{
-		std::cout << "이 동물의 food		: " << food << std::endl;
-		std::cout << "이 동물의 weight	: " << weight << std::endl;
-	}
-};
+//class Base
+//{
+//public:
+//	std::string ps;
+//
+//
+//	Base() : ps("기반") { std::cout << "기반 클래스" << std::endl; }
+//	
+//	void what() { std::cout << ps << std::endl; }
+//};
+//
+//class Derived : public Base
+//{
+//private:
+//	std::string cs;
+//public:
+//	Derived() : Base(), cs("파생")
+//	{
+//		std::cout << "파생 클래스" << std::endl;
+//		what();
+//		ps = "바꾸기";
+//	}
+//	void what() { std::cout << cs << std::endl; }
+//};
+//
+//int main()
+//{
+//	std::cout << " === 기반 클래스 생성 === " << std::endl;
+//	Base p;
+//	std::cout << 
+//
+//	std::cout << " === 파생 클래스 생성 === " << std::endl;
+//	Derived c;
+//	c.
+//
+//	return 0;
+//}
 
-int main()
-{
-	Animal animal;
-	animal.set_animal(100, 50);
-	animal.increase_food(30);
+//#include <iostream>
+//#include <string>
+//
+//class Base
+//{
+//private:
+//	std::string s;
+//
+//public:
+//	Base() : s("기반") { std::cout << "기반 클래스" << std::endl; }
+//
+//	void what() { std::cout << s << std::endl; }
+//};
+//
+//class Derived : public Base
+//{
+//private:
+//	std::string s;
+//
+//public:
+//	Derived() : s("파생"), Base() { std::cout << "파생 클래스" << std::endl; }
+//	void what() { std::cout << s << std::endl; }
+//};
+//
+//int main()
+//{
+//	Base p;
+//	Derived c;
+//
+//	std::cout << "=== 포인터 버전 ===" << std::endl;
+//	Base* p_c = &c;
+//	p_c->what();
+//
+//	return 0;
+//}
 
-	animal.view_stat();
+// 구조체부터 객체지향프로그래밍의 기초를 튼튼히 하자!!
 
-	return 0;
-}
+#include <iostream>
+#include <Windows.h>
+

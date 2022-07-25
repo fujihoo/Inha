@@ -15,7 +15,7 @@ namespace PersonalWork
             var p = new PointTest();
             p.x = 10;
             p.y = 15;
-            Console.WriteLine($"X = {p.x}, y = {p.y}");
+            Console.WriteLine($"x = {p.x}, y = {p.y}");
         }
     }
 }

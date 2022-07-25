@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e722ea32-9afa-4924-b63c-18b6979700bb}</ProjectGuid>
-    <RootNamespace>MyDefenceGame</RootNamespace>
+    <ProjectGuid>{8fc69c34-defa-441d-933a-491ddb8884d1}</ProjectGuid>
+    <RootNamespace>AStarAlgorithm</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,25 +139,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Cannon.h" />
+    <ClInclude Include="AStarAlgorithm.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="MyDefenceGame.h" />
-    <ClInclude Include="Object.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Wall.h" />
+    <ClInclude Include="WindowDraw.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cannon.cpp" />
-    <ClCompile Include="MyDefenceGame.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Wall.cpp" />
+    <ClCompile Include="AStarAlgorithm.cpp" />
+    <ClCompile Include="Node.cpp" />
+    <ClCompile Include="WindowDraw.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="MyDefenceGame.rc" />
+    <ResourceCompile Include="AStarAlgorithm.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="MyDefenceGame.ico" />
+    <Image Include="AStarAlgorithm.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
